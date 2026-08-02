@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { validateEmail, clampString, sanitizeInput } from "@/lib/validation";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const CONTACT_TO = process.env.CONTACT_EMAIL || "contact@worldlive.com";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://worldlive.dpdns.org";
 
 const MAX_MESSAGE = 5000;
 const MAX_NAME = 100;
 const MAX_SUBJECT = 200;
+
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
+  return new Resend(apiKey);
+}
 
 interface ContactRequest {
   name: string;
@@ -68,6 +73,14 @@ export async function POST(request: NextRequest) {
       </body>
       </html>
     `;
+
+    const resend = getResend();
+    if (!resend) {
+      return NextResponse.json(
+        { error: "Email service is not configured" },
+        { status: 503 }
+      );
+    }
 
     const result = await resend.emails.send({
       from: "WorldLive Contact <onboarding@resend.dev>",
