@@ -1,0 +1,11 @@
+▲ Next.js 16.2.12
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.39:3000
+✓ Ready in 489ms
+⚠ Attempted to load @next/swc-win32-x64-msvc, but an error occurred: \\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node is not a valid Win32 application.
+\\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node
+Contact email error: {
+  statusCode: 403,
+  name: 'validation_error',
+  message: 'You can only send testing emails to your own email address (xneshaniya@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.'
+}

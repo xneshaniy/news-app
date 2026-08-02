@@ -1,0 +1,597 @@
+▲ Next.js 16.2.12 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.8.102:3000
+- Environments: .env
+✓ Ready in 2.1s
+⚠ Attempted to load @next/swc-win32-x64-msvc, but an error occurred: \\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node is not a valid Win32 application.
+\\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\LAPTOP OUTLET\Desktop\New folder\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\package-lock.json
+
+  Skipping creating a lockfile at C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\.next\dev\lock because we're using WASM bindings
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+○ Compiling /api/email ...
+ GET /api/ai 405 in 11.2s (next.js: 10.9s, proxy.ts: 53ms, application-code: 321ms)
+ GET /api/email 405 in 11.2s (next.js: 10.9s, proxy.ts: 53ms, application-code: 321ms)
+ GET /api/graphql 200 in 11.2s (next.js: 10.9s, proxy.ts: 21ms, application-code: 316ms)
+ GET /api/stocks?country=us 200 in 11.2s (next.js: 10.9s, proxy.ts: 21ms, application-code: 328ms)
+ GET / 200 in 11.8s (next.js: 10.9s, proxy.ts: 21ms, application-code: 884ms)
+ GET /api/crypto 200 in 12.5s (next.js: 10.9s, proxy.ts: 21ms, application-code: 1579ms)
+ GET /api/weather?country=us 200 in 12.6s (next.js: 10.9s, proxy.ts: 22ms, application-code: 1682ms)
+ GET /api/crypto 200 in 39ms (next.js: 9ms, proxy.ts: 11ms, application-code: 18ms)
+ GET /api/weather?country=gb 200 in 839ms (next.js: 8ms, proxy.ts: 14ms, application-code: 817ms)
+ POST /api/graphql 200 in 48ms (next.js: 12ms, proxy.ts: 16ms, application-code: 20ms)
+ GET / 200 in 2.0s (next.js: 40ms, proxy.ts: 36ms, application-code: 1973ms)
+ GET / 200 in 878ms (next.js: 12ms, proxy.ts: 21ms, application-code: 845ms)
+[browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="page.tsx">
+            <SegmentTrieNode>
+            <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+              <Home params={Promise} searchParams={Promise}>
+                <div className="min-h-scre...">
+                  <BreakingNewsBanner>
+                  <LiveNewsTicker>
+                  <Header>
+                    <header className="sticky top...">
+                      <div className="max-w-7xl ...">
+                        <div className="flex items...">
+                          <LinkComponent>
+                          <form>
+                          <div className="hidden md:...">
+                            <div>
+                            <div>
+                            <LinkComponent>
+                            <button>
+                            <PushNotifications>
+                              <button
+                                onClick={function onClick}
++                               className="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 t..."
+-                               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm..."
++                               title="Enable notifications"
+-                               title={null}
+                              >
+                                <BellOff className="w-5 h-5">
+                                  <svg
+                                    ref={null}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width={24}
+                                    height={24}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
++                                   className="lucide lucide-bell-off w-5 h-5"
+-                                   className="lucide lucide-user w-4 h-4"
+                                    aria-hidden="true"
+                                  >
+                                    <path
++                                     d="M10.268 21a2 2 0 0 0 3.464 0"
+-                                     d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                                    >
++                                   <path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742">
+-                                   <circle cx="12" cy="7" r="4">
+                                    ...
+                            ...
+                          ...
+                        ...
+                  ...
+          ...
+        ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at path (<anonymous>)
+    at PushNotifications (webpack-internal:///(app-pages-browser)/./src/components/PushNotifications.tsx:101:103)
+    at Header (webpack-internal:///(app-pages-browser)/./src/components/Header.tsx:479:112)
+    at Home (webpack-internal:///(app-pages-browser)/./src/app/page.tsx:51:88)
+○ Compiling /api/crypto ...
+ GET /api/stocks?country=us 200 in 7.7s (next.js: 6.6s, proxy.ts: 762ms, application-code: 300ms)
+ GET /api/weather?country=us 200 in 8.6s (next.js: 6.6s, proxy.ts: 762ms, application-code: 1268ms)
+ GET /api/crypto 200 in 8.6s (next.js: 6.2s, proxy.ts: 494ms, application-code: 1933ms)
+ GET / 200 in 1267ms (next.js: 421ms, proxy.ts: 230ms, application-code: 616ms)
+ GET /api/news?pageSize=30 200 in 11.9s (next.js: 7.2s, proxy.ts: 177ms, application-code: 4.5s)
+[browser] In HTML, <a> cannot be a descendant of <a>.
+This will cause a hydration error.
+
+  ...
+    <SegmentViewNode type="page" pagePath="page.tsx">
+      <SegmentTrieNode>
+      <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+        <Home params={Promise} searchParams={Promise}>
+          <div className="min-h-scre...">
+            <BreakingNewsBanner>
+            <LiveNewsTicker>
+            <Header>
+            <main className="max-w-7xl ...">
+              <div className="grid grid-...">
+                <div className="lg:col-span-3">
+                  <div>
+                  <TrendingNews>
+                    <div className="mb-8">
+                      <div>
+                      <div className="grid grid-...">
+                        <div className="relative">
+                          <div>
+                          <NewsCard article={{id:"worldn...", ...}} showActions={true}>
+                            <LinkComponent href="/article/w..." className="group block">
+>                             <a
+>                               className="group block"
+>                               ref={function}
+>                               onClick={function onClick}
+>                               onMouseEnter={function onMouseEnter}
+>                               onTouchStart={function onTouchStart}
+>                               href="/article/worldnewsapi-1-7-456095962"
+>                             >
+                                ...
+                                  <div className="mt-3 pt-3 ..." onClick={function onClick}>
+                                    <ShareButtons title={"The Orla..."} url="https://ww..." compact={true}>
+                                      <div className="flex items...">
+>                                       <a
+>                                         href={"https://twitter.com/intent/tweet?url=https%3A%2F%2Fwww.newsweek.com%..."}
+>                                         target="_blank"
+>                                         rel="noopener noreferrer"
+>                                         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transitio..."
+>                                         title="Share on Twitter"
+>                                       >
+                                        ...
+                        ...
+                  ...
+                ...
+    ...
+ 
+[browser] <a> cannot contain a nested <a>.
+See this log for the ancestor stack trace. 
+ GET / 200 in 919ms (next.js: 12ms, proxy.ts: 35ms, application-code: 872ms)
+ GET / 200 in 511ms (next.js: 42ms, proxy.ts: 187ms, application-code: 281ms)
+ GET / 200 in 394ms (next.js: 7ms, proxy.ts: 18ms, application-code: 369ms)
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+⨯ Error: failed to pipe response
+    at ignore-listed frames {
+  [cause]: [TypeError: fetch failed] {
+    [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+        at ignore-listed frames {
+      code: 'UND_ERR_CONNECT_TIMEOUT'
+    }
+  }
+}
+ GET /api/news?country=us&page=1&pageSize=20 500 in 21.3s (next.js: 6.6s, proxy.ts: 763ms, application-code: 13.9s)
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+⨯ Error: failed to pipe response
+    at ignore-listed frames {
+  [cause]: [TypeError: fetch failed] {
+    [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+        at ignore-listed frames {
+      code: 'UND_ERR_CONNECT_TIMEOUT'
+    }
+  }
+}
+ GET /api/news?q=breaking+news&category=breaking&pageSize=5 500 in 22.0s (next.js: 7.4s, proxy.ts: 28ms, application-code: 14.5s)
+[browser] In HTML, <a> cannot be a descendant of <a>.
+This will cause a hydration error.
+
+  ...
+    <SegmentViewNode type="page" pagePath="page.tsx">
+      <SegmentTrieNode>
+      <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+        <Home params={Promise} searchParams={Promise}>
+          <div className="min-h-scre...">
+            <BreakingNewsBanner>
+            <LiveNewsTicker>
+            <Header>
+            <main className="max-w-7xl ...">
+              <div className="grid grid-...">
+                <div className="lg:col-span-3">
+                  <div>
+                  <TrendingNews>
+                    <div className="mb-8">
+                      <div>
+                      <div className="grid grid-...">
+                        <div className="relative">
+                          <div>
+                          <NewsCard article={{id:"worldn...", ...}} showActions={true}>
+                            <LinkComponent href="/article/w..." className="group block">
+>                             <a
+>                               className="group block"
+>                               ref={function}
+>                               onClick={function onClick}
+>                               onMouseEnter={function onMouseEnter}
+>                               onTouchStart={function onTouchStart}
+>                               href="/article/worldnewsapi-1-7-456095962"
+>                             >
+                                ...
+                                  <div className="mt-3 pt-3 ..." onClick={function onClick}>
+                                    <ShareButtons title={"The Orla..."} url="https://ww..." compact={true}>
+                                      <div className="flex items...">
+>                                       <a
+>                                         href={"https://twitter.com/intent/tweet?url=https%3A%2F%2Fwww.newsweek.com%..."}
+>                                         target="_blank"
+>                                         rel="noopener noreferrer"
+>                                         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transitio..."
+>                                         title="Share on Twitter"
+>                                       >
+                                        ...
+                        ...
+                  ...
+                ...
+    ...
+ 
+[browser] <a> cannot contain a nested <a>.
+See this log for the ancestor stack trace. 
+[browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+[browser] Image with src "https://assets.newsweek.com/wp-content/uploads/2026/07/GettyImages-2247394754.jpg?w=1600&h=900&q=88" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="page.tsx">
+            <SegmentTrieNode>
+            <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+              <Home params={Promise} searchParams={Promise}>
+                <div className="min-h-scre...">
+                  <BreakingNewsBanner>
+                  <LiveNewsTicker>
+                  <Header>
+                    <header className="sticky top...">
+                      <div className="max-w-7xl ...">
+                        <div className="flex items...">
+                          <LinkComponent>
+                          <form>
+                          <div className="hidden md:...">
+                            <div>
+                            <div>
+                            <LinkComponent>
+                            <button>
+                            <PushNotifications>
+                              <button
+                                onClick={function onClick}
++                               className="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 t..."
+-                               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm..."
++                               title="Enable notifications"
+-                               title={null}
+                              >
+                                <BellOff className="w-5 h-5">
+                                  <svg
+                                    ref={null}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width={24}
+                                    height={24}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
++                                   className="lucide lucide-bell-off w-5 h-5"
+-                                   className="lucide lucide-user w-4 h-4"
+                                    aria-hidden="true"
+                                  >
+                                    <path
++                                     d="M10.268 21a2 2 0 0 0 3.464 0"
+-                                     d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                                    >
++                                   <path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742">
+-                                   <circle cx="12" cy="7" r="4">
+                                    ...
+                            ...
+                          ...
+                        ...
+                  ...
+          ...
+        ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at path (<anonymous>)
+    at PushNotifications (webpack-internal:///(app-pages-browser)/./src/components/PushNotifications.tsx:101:103)
+    at Header (webpack-internal:///(app-pages-browser)/./src/components/Header.tsx:479:112)
+    at Home (webpack-internal:///(app-pages-browser)/./src/app/page.tsx:51:88)
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+⨯ Error: failed to pipe response
+    at ignore-listed frames {
+  [cause]: [TypeError: fetch failed] {
+    [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted addresses: 157.230.179.93:443, 2604:a880:400:d0::1a90:a001:443, timeout: 10000ms)
+        at ignore-listed frames {
+      code: 'UND_ERR_CONNECT_TIMEOUT'
+    }
+  }
+}
+ GET /api/news?q=breaking+news&pageSize=15 500 in 15.0s (next.js: 11ms, proxy.ts: 18ms, application-code: 14.9s)
+ GET /api/stocks?country=us 200 in 37ms (next.js: 7ms, proxy.ts: 16ms, application-code: 14ms)
+ GET /api/stocks?country=us 200 in 50ms (next.js: 7ms, proxy.ts: 19ms, application-code: 24ms)
+ GET /api/stocks?country=us 200 in 40ms (next.js: 6ms, proxy.ts: 15ms, application-code: 19ms)
+ GET /api/weather?country=us 200 in 50ms (next.js: 9ms, proxy.ts: 22ms, application-code: 19ms)
+ GET /api/stocks?country=us 200 in 70ms (next.js: 33ms, proxy.ts: 22ms, application-code: 15ms)
+ GET /api/weather?country=us 200 in 48ms (next.js: 8ms, proxy.ts: 21ms, application-code: 18ms)
+ GET /api/stocks?country=us 200 in 72ms (next.js: 31ms, proxy.ts: 21ms, application-code: 19ms)
+ GET /api/weather?country=us 200 in 48ms (next.js: 6ms, proxy.ts: 24ms, application-code: 19ms)
+ GET /api/stocks?country=us 200 in 85ms (next.js: 34ms, proxy.ts: 24ms, application-code: 27ms)
+ GET /api/weather?country=us 200 in 39ms (next.js: 7ms, proxy.ts: 16ms, application-code: 17ms)
+ GET /api/stocks?country=us 200 in 67ms (next.js: 31ms, proxy.ts: 16ms, application-code: 20ms)
+ GET /api/weather?country=us 200 in 90ms (next.js: 20ms, proxy.ts: 46ms, application-code: 25ms)
+ GET /api/weather?country=us 200 in 186ms (next.js: 51ms, proxy.ts: 101ms, application-code: 35ms)
+ GET /api/weather?country=us 200 in 110ms (next.js: 32ms, proxy.ts: 45ms, application-code: 33ms)
+ GET /api/crypto 200 in 146ms (next.js: 81ms, proxy.ts: 32ms, application-code: 33ms)
+ GET /api/crypto 200 in 34ms (next.js: 5ms, proxy.ts: 13ms, application-code: 16ms)
+ GET /api/crypto 200 in 41ms (next.js: 6ms, proxy.ts: 18ms, application-code: 17ms)
+ GET /api/crypto 200 in 50ms (next.js: 9ms, proxy.ts: 22ms, application-code: 19ms)
+ GET /api/crypto 200 in 59ms (next.js: 8ms, proxy.ts: 32ms, application-code: 19ms)
+ GET /api/crypto 200 in 65ms (next.js: 16ms, proxy.ts: 19ms, application-code: 30ms)
+ GET /api/news?pageSize=30 200 in 102ms (next.js: 10ms, proxy.ts: 63ms, application-code: 29ms)
+ GET /api/crypto 200 in 81ms (next.js: 12ms, proxy.ts: 52ms, application-code: 18ms)
+ GET /api/news?pageSize=30 200 in 62ms (next.js: 6ms, proxy.ts: 22ms, application-code: 34ms)
+ GET /api/news?pageSize=30 200 in 60ms (next.js: 13ms, proxy.ts: 18ms, application-code: 29ms)
+ GET /api/news?pageSize=30 200 in 84ms (next.js: 10ms, proxy.ts: 19ms, application-code: 55ms)
+ GET /api/news?pageSize=30 200 in 106ms (next.js: 34ms, proxy.ts: 22ms, application-code: 50ms)
+ GET /api/weather?country=us 200 in 99ms (next.js: 22ms, proxy.ts: 34ms, application-code: 43ms)
+ GET /api/news?pageSize=30 200 in 396ms (next.js: 173ms, proxy.ts: 42ms, application-code: 180ms)
+ GET /api/stocks?country=us 200 in 490ms (next.js: 400ms, proxy.ts: 43ms, application-code: 48ms)
+ GET /api/crypto 200 in 82ms (next.js: 26ms, proxy.ts: 37ms, application-code: 20ms)
+ GET /api/news?pageSize=30 200 in 133ms (next.js: 63ms, proxy.ts: 37ms, application-code: 33ms)
+ GET /api/weather?country=us 200 in 163ms (next.js: 108ms, proxy.ts: 37ms, application-code: 19ms)
+ GET /api/stocks?country=us 200 in 270ms (next.js: 206ms, proxy.ts: 39ms, application-code: 24ms)
+ GET /api/crypto 200 in 155ms (next.js: 47ms, proxy.ts: 62ms, application-code: 46ms)
+ GET /api/news?pageSize=30 200 in 325ms (next.js: 122ms, proxy.ts: 62ms, application-code: 141ms)
+ GET /api/weather?country=us 200 in 440ms (next.js: 318ms, proxy.ts: 62ms, application-code: 59ms)
+ GET /api/stocks?country=us 200 in 501ms (next.js: 137ms, proxy.ts: 323ms, application-code: 41ms)
+ GET /api/crypto 200 in 182ms (next.js: 43ms, proxy.ts: 117ms, application-code: 23ms)
+ GET /api/news?pageSize=30 200 in 163ms (next.js: 52ms, proxy.ts: 72ms, application-code: 39ms)
+ GET /api/weather?country=us 200 in 190ms (next.js: 100ms, proxy.ts: 73ms, application-code: 17ms)
+ GET /api/stocks?country=us 200 in 193ms (next.js: 85ms, proxy.ts: 89ms, application-code: 20ms)
+ GET /api/crypto 200 in 87ms (next.js: 18ms, proxy.ts: 47ms, application-code: 22ms)
+ GET /api/news?pageSize=30 200 in 118ms (next.js: 45ms, proxy.ts: 48ms, application-code: 25ms)
+ GET /api/weather?country=us 200 in 109ms (next.js: 69ms, proxy.ts: 25ms, application-code: 15ms)
+ GET /api/stocks?country=us 200 in 64ms (next.js: 22ms, proxy.ts: 25ms, application-code: 17ms)
+ GET /api/news?pageSize=30 200 in 102ms (next.js: 45ms, proxy.ts: 25ms, application-code: 32ms)
+ GET /api/crypto 200 in 126ms (next.js: 81ms, proxy.ts: 29ms, application-code: 16ms)
+ GET /api/news?pageSize=30 200 in 60ms (next.js: 16ms, proxy.ts: 19ms, application-code: 25ms)
+ GET /api/weather?country=us 200 in 78ms (next.js: 40ms, proxy.ts: 21ms, application-code: 17ms)
+ GET /api/stocks?country=us 200 in 111ms (next.js: 72ms, proxy.ts: 21ms, application-code: 18ms)
+ GET /api/news?pageSize=30 200 in 103ms (next.js: 35ms, proxy.ts: 27ms, application-code: 41ms)
+ GET /api/crypto 200 in 134ms (next.js: 82ms, proxy.ts: 28ms, application-code: 24ms)
+ GET /api/weather?country=us 200 in 168ms (next.js: 98ms, proxy.ts: 45ms, application-code: 25ms)
+ GET / 200 in 617ms (next.js: 12ms, proxy.ts: 19ms, application-code: 586ms)
+ GET / 200 in 287ms (next.js: 6ms, proxy.ts: 15ms, application-code: 267ms)
+ GET / 200 in 496ms (next.js: 39ms, proxy.ts: 44ms, application-code: 412ms)
+ GET / 200 in 346ms (next.js: 6ms, proxy.ts: 17ms, application-code: 324ms)
+ GET / 200 in 455ms (next.js: 7ms, proxy.ts: 17ms, application-code: 431ms)
+ GET / 200 in 390ms (next.js: 6ms, proxy.ts: 15ms, application-code: 369ms)
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin. Falling back to browser navigation. TypeError: Failed to fetch
+ GET / 200 in 659ms (next.js: 8ms, proxy.ts: 16ms, application-code: 635ms)
+ GET / 200 in 575ms (next.js: 8ms, proxy.ts: 39ms, application-code: 529ms)
+ GET / 200 in 488ms (next.js: 11ms, proxy.ts: 15ms, application-code: 463ms)
+ GET / 200 in 288ms (next.js: 6ms, proxy.ts: 16ms, application-code: 266ms)
+ GET / 200 in 337ms (next.js: 26ms, proxy.ts: 17ms, application-code: 294ms)
+ GET / 200 in 329ms (next.js: 7ms, proxy.ts: 18ms, application-code: 304ms)
+ GET / 200 in 349ms (next.js: 8ms, proxy.ts: 16ms, application-code: 326ms)
+ GET / 200 in 377ms (next.js: 11ms, proxy.ts: 17ms, application-code: 348ms)
+ GET / 200 in 291ms (next.js: 8ms, proxy.ts: 15ms, application-code: 268ms)
+ GET / 200 in 332ms (next.js: 15ms, proxy.ts: 10ms, application-code: 307ms)
+ GET / 200 in 596ms (next.js: 22ms, proxy.ts: 16ms, application-code: 559ms)
+ GET / 200 in 418ms (next.js: 11ms, proxy.ts: 20ms, application-code: 386ms)
+ GET / 200 in 534ms (next.js: 10ms, proxy.ts: 36ms, application-code: 489ms)
+ GET / 200 in 512ms (next.js: 9ms, proxy.ts: 17ms, application-code: 487ms)
+ GET / 200 in 322ms (next.js: 20ms, proxy.ts: 14ms, application-code: 288ms)
+ GET / 200 in 220ms (next.js: 7ms, proxy.ts: 16ms, application-code: 197ms)
+ GET / 200 in 250ms (next.js: 8ms, proxy.ts: 16ms, application-code: 225ms)
+ GET / 200 in 282ms (next.js: 11ms, proxy.ts: 15ms, application-code: 256ms)
+ GET / 200 in 264ms (next.js: 7ms, proxy.ts: 14ms, application-code: 243ms)
+ GET / 200 in 308ms (next.js: 16ms, proxy.ts: 41ms, application-code: 250ms)
+ GET / 200 in 440ms (next.js: 18ms, proxy.ts: 53ms, application-code: 370ms)
+ GET / 200 in 262ms (next.js: 9ms, proxy.ts: 20ms, application-code: 233ms)
+ GET / 200 in 417ms (next.js: 8ms, proxy.ts: 24ms, application-code: 384ms)
+ GET / 200 in 506ms (next.js: 18ms, proxy.ts: 23ms, application-code: 464ms)
+ GET / 200 in 703ms (next.js: 41ms, proxy.ts: 192ms, application-code: 471ms)
+ GET / 200 in 282ms (next.js: 5ms, proxy.ts: 14ms, application-code: 262ms)
+ GET / 200 in 298ms (next.js: 5ms, proxy.ts: 15ms, application-code: 278ms)
+ GET / 200 in 308ms (next.js: 6ms, proxy.ts: 18ms, application-code: 284ms)
+ GET / 200 in 381ms (next.js: 8ms, proxy.ts: 12ms, application-code: 361ms)
+ GET / 200 in 294ms (next.js: 10ms, proxy.ts: 24ms, application-code: 260ms)
+ GET / 200 in 344ms (next.js: 6ms, proxy.ts: 26ms, application-code: 312ms)
+ GET / 200 in 501ms (next.js: 7ms, proxy.ts: 16ms, application-code: 479ms)
+ GET / 200 in 604ms (next.js: 86ms, proxy.ts: 73ms, application-code: 445ms)
+ GET / 200 in 598ms (next.js: 8ms, proxy.ts: 14ms, application-code: 576ms)
+ GET / 200 in 426ms (next.js: 19ms, proxy.ts: 23ms, application-code: 384ms)
+ GET / 200 in 634ms (next.js: 9ms, proxy.ts: 27ms, application-code: 599ms)
+ GET / 200 in 528ms (next.js: 10ms, proxy.ts: 25ms, application-code: 493ms)
+ GET / 200 in 437ms (next.js: 13ms, proxy.ts: 15ms, application-code: 408ms)
+ GET / 200 in 2.4s (next.js: 297ms, proxy.ts: 233ms, application-code: 1834ms)
+ GET / 200 in 776ms (next.js: 104ms, proxy.ts: 21ms, application-code: 650ms)
+ GET / 200 in 667ms (next.js: 17ms, proxy.ts: 34ms, application-code: 616ms)
+ GET / 200 in 541ms (next.js: 25ms, proxy.ts: 28ms, application-code: 488ms)
+ GET / 200 in 496ms (next.js: 9ms, proxy.ts: 15ms, application-code: 472ms)
+ GET / 200 in 739ms (next.js: 6ms, proxy.ts: 15ms, application-code: 718ms)
+ GET / 200 in 727ms (next.js: 7ms, proxy.ts: 41ms, application-code: 679ms)
+ GET / 200 in 1471ms (next.js: 9ms, proxy.ts: 30ms, application-code: 1431ms)
+ GET / 200 in 898ms (next.js: 39ms, proxy.ts: 13ms, application-code: 846ms)
+ GET / 200 in 548ms (next.js: 10ms, proxy.ts: 15ms, application-code: 523ms)
+ GET / 200 in 619ms (next.js: 16ms, proxy.ts: 18ms, application-code: 586ms)
+ GET / 200 in 475ms (next.js: 6ms, proxy.ts: 25ms, application-code: 444ms)
+ GET / 200 in 466ms (next.js: 15ms, proxy.ts: 30ms, application-code: 422ms)
+ GET / 200 in 1231ms (next.js: 128ms, proxy.ts: 137ms, application-code: 967ms)
+ GET / 200 in 1006ms (next.js: 20ms, proxy.ts: 24ms, application-code: 962ms)
+ GET / 200 in 863ms (next.js: 7ms, proxy.ts: 14ms, application-code: 842ms)
+ GET / 200 in 767ms (next.js: 7ms, proxy.ts: 23ms, application-code: 736ms)
+ GET / 200 in 665ms (next.js: 25ms, proxy.ts: 26ms, application-code: 614ms)
+ GET / 200 in 771ms (next.js: 43ms, proxy.ts: 40ms, application-code: 687ms)
+ GET / 200 in 751ms (next.js: 7ms, proxy.ts: 18ms, application-code: 725ms)
+ GET / 200 in 4.2s (next.js: 1604ms, proxy.ts: 144ms, application-code: 2.5s)
+ GET / 200 in 403ms (next.js: 8ms, proxy.ts: 12ms, application-code: 383ms)
+ GET / 200 in 950ms (next.js: 31ms, proxy.ts: 18ms, application-code: 902ms)
+  Reload env: .env
+ GET / 200 in 2.1s (next.js: 63ms, proxy.ts: 62ms, application-code: 1984ms)
+ GET / 200 in 4.4s (next.js: 1979ms, proxy.ts: 27ms, application-code: 2.4s)
+⨯ ./src/lib/auth.ts
+Module not found: Can't resolve 'jose'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/middleware.ts
+○ Compiling /_error ...
+ GET / 500 in 114s (next.js: 111s, proxy.ts: 76ms, application-code: 2.4s)
+ GET / 200 in 1897ms (next.js: 607ms, proxy.ts: 456ms, application-code: 833ms)
+ GET / 200 in 1763ms (next.js: 849ms, proxy.ts: 17ms, application-code: 896ms)
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.2.12 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.8.102:3000
+- Environments: .env
+✓ Ready in 1906ms
+⚠ Attempted to load @next/swc-win32-x64-msvc, but an error occurred: \\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node is not a valid Win32 application.
+\\?\C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\LAPTOP OUTLET\Desktop\New folder\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\package-lock.json
+
+  Skipping creating a lockfile at C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\.next\dev\lock because we're using WASM bindings
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+- Experiments (use with caution):
+  · optimizePackageImports
+
+○ Compiling / ...
+⨯ ./src/app/layout.tsx
+Error:   ! Plugin is not supported with current @swc/core. Plugin transform will be skipped.
+  x `ssr: false` is not allowed with `next/dynamic` in Server Components. Please move it into a Client Component.
+    ,-[C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\src\app\layout.tsx:13:1]
+ 10 | import { AuthProvider } from "@/components/AuthProvider";
+ 11 | import { ReadingHistoryProvider } from "@/components/ReadingHistoryProvider";
+ 12 | 
+ 13 | const PWAInstall = dynamic(() => import("@/components/PWAInstall"), { ssr: false });
+    :                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 14 | 
+ 15 | const geistSans = Geist({
+ 16 |   variable: "--font-geist-sans",
+    `----
+    at wasm.wasm.__wbindgen_error_new externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35092]:0x14cb866)
+    at wasm.wasm.wasm[1883d881a7905053]::transform_sync (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[1005]:0x666203)
+    at wasm.wasm.wasm_bindgen_futures[9d7b310d6153a321]::future_to_promise::<wasm[1883d881a7905053]::transform::{closure#0}>::{closure#0}::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[13850]:0x11b9878)
+    at wasm.wasm.<wasm_bindgen_futures[9d7b310d6153a321]::queue::Queue>::new::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[9603]:0xff85b8)
+    at wasm.wasm.<dyn core[f69e0e472a72c355]::ops::function::FnMut<(_,), Output = _> as wasm_bindgen[d64814e1a33cf728]::closure::WasmClosure>::describe::invoke::<wasm_bindgen[d64814e1a33cf728]::JsValue, ()> (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[34561]:0x14c7a1b)
+    at wasm.wasm.closure5233 externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35955]:0x14d0e94)
+Import trace for requested module:
+./src/app/layout.tsx
+⨯ ./src/app/layout.tsx
+Error:   ! Plugin is not supported with current @swc/core. Plugin transform will be skipped.
+  x `ssr: false` is not allowed with `next/dynamic` in Server Components. Please move it into a Client Component.
+    ,-[C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\src\app\layout.tsx:13:1]
+ 10 | import { AuthProvider } from "@/components/AuthProvider";
+ 11 | import { ReadingHistoryProvider } from "@/components/ReadingHistoryProvider";
+ 12 | 
+ 13 | const PWAInstall = dynamic(() => import("@/components/PWAInstall"), { ssr: false });
+    :                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 14 | 
+ 15 | const geistSans = Geist({
+ 16 |   variable: "--font-geist-sans",
+    `----
+    at wasm.wasm.__wbindgen_error_new externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35092]:0x14cb866)
+    at wasm.wasm.wasm[1883d881a7905053]::transform_sync (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[1005]:0x666203)
+    at wasm.wasm.wasm_bindgen_futures[9d7b310d6153a321]::future_to_promise::<wasm[1883d881a7905053]::transform::{closure#0}>::{closure#0}::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[13850]:0x11b9878)
+    at wasm.wasm.<wasm_bindgen_futures[9d7b310d6153a321]::queue::Queue>::new::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[9603]:0xff85b8)
+    at wasm.wasm.<dyn core[f69e0e472a72c355]::ops::function::FnMut<(_,), Output = _> as wasm_bindgen[d64814e1a33cf728]::closure::WasmClosure>::describe::invoke::<wasm_bindgen[d64814e1a33cf728]::JsValue, ()> (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[34561]:0x14c7a1b)
+    at wasm.wasm.closure5233 externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35955]:0x14d0e94)
+Import trace for requested module:
+./src/app/layout.tsx
+⨯ ./src/app/layout.tsx
+Error:   ! Plugin is not supported with current @swc/core. Plugin transform will be skipped.
+  x `ssr: false` is not allowed with `next/dynamic` in Server Components. Please move it into a Client Component.
+    ,-[C:\Users\LAPTOP OUTLET\Desktop\New folder\news-app\src\app\layout.tsx:13:1]
+ 10 | import { AuthProvider } from "@/components/AuthProvider";
+ 11 | import { ReadingHistoryProvider } from "@/components/ReadingHistoryProvider";
+ 12 | 
+ 13 | const PWAInstall = dynamic(() => import("@/components/PWAInstall"), { ssr: false });
+    :                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 14 | 
+ 15 | const geistSans = Geist({
+ 16 |   variable: "--font-geist-sans",
+    `----
+    at wasm.wasm.__wbindgen_error_new externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35092]:0x14cb866)
+    at wasm.wasm.wasm[1883d881a7905053]::transform_sync (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[1005]:0x666203)
+    at wasm.wasm.wasm_bindgen_futures[9d7b310d6153a321]::future_to_promise::<wasm[1883d881a7905053]::transform::{closure#0}>::{closure#0}::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[13850]:0x11b9878)
+    at wasm.wasm.<wasm_bindgen_futures[9d7b310d6153a321]::queue::Queue>::new::{closure#0} (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[9603]:0xff85b8)
+    at wasm.wasm.<dyn core[f69e0e472a72c355]::ops::function::FnMut<(_,), Output = _> as wasm_bindgen[d64814e1a33cf728]::closure::WasmClosure>::describe::invoke::<wasm_bindgen[d64814e1a33cf728]::JsValue, ()> (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[34561]:0x14c7a1b)
+    at wasm.wasm.closure5233 externref shim (wasm://wasm/wasm.wasm-084a3e6e:wasm-function[35955]:0x14d0e94)
+Import trace for requested module:
+./src/app/layout.tsx
+ GET / 500 in 29.7s (next.js: 28.4s, proxy.ts: 654ms, application-code: 664ms)
+○ Compiling / ...
+ GET / 200 in 14.6s (next.js: 13.9s, proxy.ts: 9ms, application-code: 731ms)
+ GET /admin/login 200 in 5.8s (next.js: 4.8s, proxy.ts: 223ms, application-code: 795ms)
+ GET / 200 in 178ms (next.js: 10ms, proxy.ts: 14ms, application-code: 154ms)
+ GET /admin/login 200 in 134ms (next.js: 8ms, proxy.ts: 10ms, application-code: 116ms)
+ GET /admin/login 200 in 139ms (next.js: 9ms, proxy.ts: 13ms, application-code: 116ms)
+ GET /category/technology 200 in 4.3s (next.js: 3.8s, proxy.ts: 13ms, application-code: 434ms)
+○ Compiling /article/[id] ...
+ GET /article/test 200 in 5.3s (next.js: 4.8s, proxy.ts: 8ms, application-code: 445ms)
+ GET /search 200 in 3.1s (next.js: 2.1s, proxy.ts: 19ms, application-code: 967ms)
+ GET /favorites 200 in 3.4s (next.js: 2.8s, proxy.ts: 21ms, application-code: 588ms)
+ GET /bookmarks 200 in 2.4s (next.js: 1817ms, proxy.ts: 21ms, application-code: 525ms)
