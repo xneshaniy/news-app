@@ -8,14 +8,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "sports", "entertainment", "health", "science",
   ];
 
-  const countries = [
-    "us", "gb", "in", "pk", "ca", "au", "de", "fr",
-    "jp", "cn", "br", "za", "ae", "sa", "ng", "eg",
-    "tr", "ru", "it", "es",
-  ];
-
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "always" as const, priority: 1.0 },
+    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
+    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
+    { url: `${baseUrl}/sources`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.6 },
+    { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${baseUrl}/disclaimer`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${baseUrl}/cookies`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.3 },
     { url: `${baseUrl}/favorites`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.6 },
     { url: `${baseUrl}/bookmarks`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.6 },
     { url: `${baseUrl}/live-tv`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },

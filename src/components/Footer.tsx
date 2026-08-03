@@ -26,6 +26,7 @@ const footerFeatures = [
 const footerCompany = [
   { name: "About Us", href: "/about" },
   { name: "Contact", href: "/contact" },
+  { name: "News Sources", href: "/sources" },
   { name: "Privacy Policy", href: "/privacy" },
   { name: "Terms & Conditions", href: "/terms" },
   { name: "Disclaimer", href: "/disclaimer" },
