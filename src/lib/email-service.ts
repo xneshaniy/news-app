@@ -62,23 +62,26 @@ function appendLog(entry: EmailLogEntry) {
   }
 }
 
-function logSend(type: string, to: string | string[], subject: string, status: "sent" | "failed", error?: string) {
+function logSend(type: string, to: string | string[], subject: string, status: "sent" | "failed", provider: string, error?: string) {
   appendLog({
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     type,
     to: Array.isArray(to) ? to.join(", ") : to,
     subject,
-    provider: getEmailConfig().provider,
+    provider,
     status,
     error,
     timestamp: new Date().toISOString(),
   });
 }
 
-function fromAddress(): string {
+function fromAddress(provider?: string): string {
   const config = getEmailConfig();
-  if (config.provider === "smtp" && config.fromEmail) return config.fromEmail;
-  return config.fromEmail || "WorldLive <onboarding@resend.dev>";
+  const mode = provider || config.provider;
+  if (mode === "smtp") {
+    return config.fromEmail || "WorldLive <content@worldlive.dpdns.org>";
+  }
+  return "WorldLive <onboarding@resend.dev>";
 }
 
 async function sendViaSmtp(message: EmailMessage): Promise<void> {
@@ -96,7 +99,7 @@ async function sendViaSmtp(message: EmailMessage): Promise<void> {
     tls: { rejectUnauthorized: false },
   });
   await transporter.sendMail({
-    from: fromAddress(),
+    from: fromAddress("smtp"),
     to: message.to,
     subject: message.subject,
     html: message.html,
@@ -113,7 +116,7 @@ async function sendViaResend(message: EmailMessage): Promise<void> {
   }
   const resend = new Resend(apiKey);
   const result = await resend.emails.send({
-    from: fromAddress(),
+    from: fromAddress("resend"),
     to: message.to,
     subject: clampString(message.subject, 200),
     html: clampString(message.html, 100000),
@@ -128,23 +131,44 @@ export async function sendEmail(type: string, message: EmailMessage): Promise<{ 
   const emails = Array.isArray(message.to) ? message.to : [message.to];
   const invalid = emails.filter((e) => !validateEmail(e));
   if (invalid.length > 0) {
-    logSend(type, message.to, message.subject, "failed", `Invalid email addresses: ${invalid.join(", ")}`);
+    logSend(type, message.to, message.subject, "failed", "none", `Invalid email addresses: ${invalid.join(", ")}`);
     throw new Error(`Invalid email addresses: ${invalid.join(", ")}`);
   }
 
   const config = getEmailConfig();
+  const primary = config.provider === "smtp" ? "smtp" : "resend";
+  const fallback = primary === "smtp" ? "resend" : "smtp";
+
   try {
-    if (config.provider === "smtp") {
+    if (primary === "smtp") {
       await sendViaSmtp(message);
     } else {
       await sendViaResend(message);
     }
-    logSend(type, message.to, message.subject, "sent");
-    return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, provider: config.provider };
+    logSend(type, message.to, message.subject, "sent", primary);
+    return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, provider: primary };
   } catch (error) {
-    const messageText = error instanceof Error ? error.message : String(error);
-    logSend(type, message.to, message.subject, "failed", messageText);
-    throw error;
+    const fallbackAvailable = fallback === "resend"
+      ? Boolean((config.resendApiKey || process.env.RESEND_API_KEY))
+      : Boolean(config.smtpHost);
+    if (!fallbackAvailable) {
+      const messageText = error instanceof Error ? error.message : String(error);
+      logSend(type, message.to, message.subject, "failed", primary, messageText);
+      throw error;
+    }
+    try {
+      if (fallback === "smtp") {
+        await sendViaSmtp(message);
+      } else {
+        await sendViaResend(message);
+      }
+      logSend(type, message.to, message.subject, "sent", fallback);
+      return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, provider: fallback };
+    } catch (fallbackError) {
+      const messageText = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      logSend(type, message.to, message.subject, "failed", fallback, messageText);
+      throw fallbackError;
+    }
   }
 }
 
