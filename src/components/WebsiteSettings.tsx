@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: WebsiteSettings = {
   siteName: "WorldLive",
   siteTagline: "World News from Every Country",
   logo: "/logo.png",
-  favicon: "/favicon.ico",
+  favicon: "/favicon.png",
   primaryColor: "#2563eb",
   accentColor: "#7c3aed",
   darkModeDefault: true,
