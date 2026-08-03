@@ -63,12 +63,21 @@ const MOCK_RULES: NotificationRule[] = [
 
 export default function EmailNotifications() {
   const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
-  const [templates] = useState(MOCK_TEMPLATES);
+  const [templates, setTemplates] = useState(MOCK_TEMPLATES);
   const [rules, setRules] = useState(MOCK_RULES);
   const [activeTab, setActiveTab] = useState<"campaigns" | "templates" | "rules" | "analytics" | "settings">("campaigns");
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [newCampaign, setNewCampaign] = useState({ name: "", subject: "", recipients: "" });
+  const [viewingCampaign, setViewingCampaign] = useState<EmailCampaign | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [templateForm, setTemplateForm] = useState({ name: "", subject: "" });
+  const [settings, setSettings] = useState({
+    autoSubscribe: true,
+    breakingPush: true,
+    unsubscribeConfirm: true,
+    dailySendLimit: "10,000",
+  });
 
   const showNotice = (type: "success" | "error", message: string) => {
     setNotice({ type, message });
@@ -104,6 +113,27 @@ export default function EmailNotifications() {
     if (!confirm(`Delete campaign "${campaign?.name}"? This cannot be undone.`)) return;
     setCampaigns((prev) => prev.filter((c) => c.id !== id));
     showNotice("success", `Campaign "${campaign?.name}" deleted.`);
+  };
+
+  const openEditTemplate = (t: EmailTemplate) => {
+    setEditingTemplate(t);
+    setTemplateForm({ name: t.name, subject: t.subject });
+  };
+
+  const saveTemplate = () => {
+    if (!editingTemplate || !templateForm.name.trim() || !templateForm.subject.trim()) return;
+    setTemplates((prev) =>
+      prev.map((t) => (t.id === editingTemplate.id ? { ...t, name: templateForm.name.trim(), subject: templateForm.subject.trim(), lastEdited: "Just now" } : t))
+    );
+    setEditingTemplate(null);
+    showNotice("success", "Template updated.");
+  };
+
+  const deleteTemplate = (id: string) => {
+    const template = templates.find((t) => t.id === id);
+    if (!confirm(`Delete template "${template?.name}"? This cannot be undone.`)) return;
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
+    showNotice("success", `Template "${template?.name}" deleted.`);
   };
 
   return (
@@ -192,8 +222,8 @@ export default function EmailNotifications() {
                     <td className="px-4 py-3 text-sm">{c.clicked > 0 ? `${((c.clicked / c.recipients) * 100).toFixed(1)}%` : "-"}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><Eye className="w-3.5 h-3.5" /></button>
-                        <button className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"><Edit3 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setViewingCampaign(c)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="View details"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setViewingCampaign(c)} className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
                         <button onClick={() => deleteCampaign(c.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
@@ -218,8 +248,8 @@ export default function EmailNotifications() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400">Edited {t.lastEdited}</span>
                 <div className="flex items-center gap-1">
-                  <button className="p-1 text-gray-400 hover:text-blue-500"><Edit3 className="w-3.5 h-3.5" /></button>
-                  <button className="p-1 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => openEditTemplate(t)} className="p-1 text-gray-400 hover:text-blue-500" title="Edit template"><Edit3 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => deleteTemplate(t.id)} className="p-1 text-gray-400 hover:text-red-500" title="Delete template"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             </div>
@@ -272,19 +302,83 @@ export default function EmailNotifications() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6 space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Auto-Subscribe New Users</p><p className="text-xs text-gray-400">Automatically add new users to newsletter</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, autoSubscribe: !settings.autoSubscribe })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.autoSubscribe ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.autoSubscribe ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Breaking News Push</p><p className="text-xs text-gray-400">Send push notifications for breaking news</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, breakingPush: !settings.breakingPush })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.breakingPush ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.breakingPush ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Unsubscribe Confirmation</p><p className="text-xs text-gray-400">Require email confirmation to unsubscribe</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, unsubscribeConfirm: !settings.unsubscribeConfirm })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.unsubscribeConfirm ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.unsubscribeConfirm ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Daily Send Limit</p><p className="text-xs text-gray-400">Maximum emails per day</p></div>
-            <select className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"><option>10,000</option><option>25,000</option><option>50,000</option><option>Unlimited</option></select>
+            <select value={settings.dailySendLimit} onChange={(e) => setSettings({ ...settings, dailySendLimit: e.target.value })} className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"><option>10,000</option><option>25,000</option><option>50,000</option><option>Unlimited</option></select>
+          </div>
+        </div>
+      )}
+
+      {viewingCampaign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setViewingCampaign(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
+              <div>
+                <h3 className="font-semibold">Campaign Details</h3>
+                <p className="text-xs text-gray-400 mt-0.5">{viewingCampaign.name}</p>
+              </div>
+              <button onClick={() => setViewingCampaign(null)} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-gray-500">Subject</span><span className="font-medium text-right">{viewingCampaign.subject}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Status</span><span className="font-medium capitalize">{viewingCampaign.status}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Recipients</span><span className="font-medium">{viewingCampaign.recipients.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Opened</span><span className="font-medium">{viewingCampaign.opened.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Clicked</span><span className="font-medium">{viewingCampaign.clicked.toLocaleString()}</span></div>
+              {viewingCampaign.sentAt && <div className="flex justify-between"><span className="text-gray-500">Sent</span><span className="font-medium">{viewingCampaign.sentAt}</span></div>}
+              {viewingCampaign.scheduledFor && <div className="flex justify-between"><span className="text-gray-500">Scheduled</span><span className="font-medium">{viewingCampaign.scheduledFor}</span></div>}
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700/50">
+              <button onClick={() => setViewingCampaign(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setEditingTemplate(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
+              <div>
+                <h3 className="font-semibold">Edit Template</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Update template name and subject</p>
+              </div>
+              <button onClick={() => setEditingTemplate(null)} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Template Name</label>
+                <input value={templateForm.name} onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email Subject</label>
+                <input value={templateForm.subject} onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })} className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700/50">
+              <button onClick={() => setEditingTemplate(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+              <button onClick={saveTemplate} disabled={!templateForm.name.trim() || !templateForm.subject.trim()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">Save Template</button>
+            </div>
           </div>
         </div>
       )}

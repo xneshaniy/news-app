@@ -60,6 +60,8 @@ export default function UserManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "user" as ManagedUser["role"] });
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
+  const [editForm, setEditForm] = useState<ManagedUser | null>(null);
 
   const filtered = users.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -98,6 +100,18 @@ export default function UserManagement() {
 
   const toggleUserStatus = (id: string, newStatus: ManagedUser["status"]) => {
     setUsers((prev) => prev.map((u) => u.id === id ? { ...u, status: newStatus } : u));
+  };
+
+  const openEdit = (user: ManagedUser) => {
+    setEditingUser(user);
+    setEditForm({ ...user });
+  };
+
+  const saveEdit = () => {
+    if (!editForm) return;
+    setUsers((prev) => prev.map((u) => (u.id === editForm.id ? editForm : u)));
+    setEditingUser(null);
+    setEditForm(null);
   };
 
   const roleColors: Record<string, string> = {
@@ -216,6 +230,90 @@ export default function UserManagement() {
         </div>
       )}
 
+      {editingUser && editForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditingUser(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Edit User</h2>
+              <button onClick={() => setEditingUser(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select
+                  value={editForm.role}
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value as ManagedUser["role"] })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  {ROLES.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value as ManagedUser["status"] })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="pending">Pending</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                <label className="text-sm font-medium">Verified</label>
+                <button
+                  type="button"
+                  onClick={() => setEditForm({ ...editForm, verified: !editForm.verified })}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${editForm.verified ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${editForm.verified ? "left-6" : "left-1"}`} />
+                </button>
+              </div>
+              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                <label className="text-sm font-medium">Two-Factor Auth</label>
+                <button
+                  type="button"
+                  onClick={() => setEditForm({ ...editForm, twoFactor: !editForm.twoFactor })}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${editForm.twoFactor ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${editForm.twoFactor ? "left-6" : "left-1"}`} />
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setEditingUser(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Cancel
+              </button>
+              <button onClick={saveEdit} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
           <p className="text-2xl font-bold">{users.length}</p>
@@ -302,8 +400,8 @@ export default function UserManagement() {
                       <td className="px-4 py-3 text-xs text-gray-400">{user.lastActive}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
-                          <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                          <button className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => openEdit(user)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => openEdit(user)} className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
                           {user.status === "active" ? (
                             <button onClick={() => toggleUserStatus(user.id, "suspended")} className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20" title="Suspend"><Ban className="w-3.5 h-3.5" /></button>
                           ) : user.status === "suspended" ? (

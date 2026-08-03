@@ -70,6 +70,14 @@ export default function SecurityCenter() {
   const [activeTab, setActiveTab] = useState<"logins" | "audit" | "ip" | "2fa" | "settings">("logins");
   const [search, setSearch] = useState("");
   const [ips, setIps] = useState(MOCK_IPS);
+  const [settings, setSettings] = useState({
+    enforce2FA: true,
+    loginRateLimit: true,
+    autoBlockIPs: true,
+    sessionTimeout: true,
+    emailNotifications: true,
+    auditRetention: "90 days",
+  });
 
   const toggleIPStatus = (ip: string) => {
     setIps((prev) => prev.map((e) => e.ip === ip ? { ...e, status: e.status === "blocked" ? "allowed" : "blocked" } : e));
@@ -322,27 +330,43 @@ export default function SecurityCenter() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6 space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Enforce 2FA for Admins</p><p className="text-xs text-gray-400">Require all admin users to enable 2FA</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, enforce2FA: !settings.enforce2FA })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.enforce2FA ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.enforce2FA ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Login Rate Limiting</p><p className="text-xs text-gray-400">Limit login attempts to 5 per minute per IP</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, loginRateLimit: !settings.loginRateLimit })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.loginRateLimit ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.loginRateLimit ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Auto-Block Suspicious IPs</p><p className="text-xs text-gray-400">Automatically block IPs with 10+ failed attempts</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, autoBlockIPs: !settings.autoBlockIPs })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.autoBlockIPs ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.autoBlockIPs ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Session Timeout</p><p className="text-xs text-gray-400">Auto-logout after 30 minutes of inactivity</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, sessionTimeout: !settings.sessionTimeout })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.sessionTimeout ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.sessionTimeout ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Email Login Notifications</p><p className="text-xs text-gray-400">Notify admins of new login from unknown device</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, emailNotifications: !settings.emailNotifications })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.emailNotifications ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.emailNotifications ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-            <div><p className="font-medium text-sm">Audit Log Retention</p><p className="text-xs text-gray-400">Keep audit logs for 90 days</p></div>
-            <select className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"><option>30 days</option><option>90 days</option><option>1 year</option><option>Forever</option></select>
+            <div><p className="font-medium text-sm">Audit Log Retention</p><p className="text-xs text-gray-400">Keep audit logs for a retention period</p></div>
+            <select
+              value={settings.auditRetention}
+              onChange={(e) => setSettings({ ...settings, auditRetention: e.target.value })}
+              className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+            >
+              <option>30 days</option><option>90 days</option><option>1 year</option><option>Forever</option>
+            </select>
           </div>
         </div>
       )}

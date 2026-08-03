@@ -43,6 +43,7 @@ export default function SocialMediaManagement() {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [settings, setSettings] = useState({ autoPublish: true, includeImage: true, hashtags: false });
 
   const showNotice = useCallback((type: Notice["type"], message: string) => {
     setNotice({ type, message });
@@ -286,15 +287,21 @@ export default function SocialMediaManagement() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6 space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Auto-Publish New Articles</p><p className="text-xs text-gray-400">Automatically share new articles on connected platforms</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, autoPublish: !settings.autoPublish })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.autoPublish ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.autoPublish ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Include Featured Image</p><p className="text-xs text-gray-400">Attach article featured image to social posts</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, includeImage: !settings.includeImage })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.includeImage ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.includeImage ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Hashtag Auto-Generation</p><p className="text-xs text-gray-400">Generate relevant hashtags from article content</p></div>
-            <button className="relative w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full" /></button>
+            <button onClick={() => setSettings({ ...settings, hashtags: !settings.hashtags })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.hashtags ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.hashtags ? "translate-x-5" : ""}`} />
+            </button>
           </div>
         </div>
       )}

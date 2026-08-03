@@ -27,7 +27,6 @@ import {
   DollarSign,
   Languages,
   Bookmark,
-  Shield,
   Rss,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
@@ -61,7 +60,6 @@ const featureLinks = [
   { href: "/rss", icon: Rss, label: "RSS" },
   { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
   { href: "/history", icon: History, label: "History" },
-  { href: "/admin", icon: Shield, label: "Admin" },
 ];
 
 export default function Header() {

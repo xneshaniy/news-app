@@ -1,4 +1,4 @@
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import fs from "fs";
 import path from "path";
 
@@ -168,5 +168,3 @@ export function deleteAuthor(id: string): boolean {
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
-
-export { createHash };

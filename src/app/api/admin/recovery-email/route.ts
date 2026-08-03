@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { getAdminEmail } from "@/lib/admin-store";
 
 export async function GET() {
-  const email = process.env.ADMIN_EMAIL || "";
+  const email = getAdminEmail();
   return NextResponse.json({ email });
 }

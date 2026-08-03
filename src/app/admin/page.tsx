@@ -26,24 +26,26 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadStats = () => {
-      const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-      const bookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-      const readArticles = JSON.parse(localStorage.getItem("readArticles") || "[]");
+  const loadStats = () => {
+    setLoading(true);
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+    const bookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+    const readArticles = JSON.parse(localStorage.getItem("readArticles") || "[]");
 
-      setStats({
-        totalArticles: 0,
-        totalViews: readArticles.length || 1247,
-        totalFavorites: favorites.length,
-        totalBookmarks: bookmarks.length,
-        sourcesActive: 5,
-        countriesCovered: 20,
-        avgLoadTime: 1.2,
-        uptime: 99.9,
-      });
-      setLoading(false);
-    };
+    setStats({
+      totalArticles: 0,
+      totalViews: readArticles.length || 1247,
+      totalFavorites: favorites.length,
+      totalBookmarks: bookmarks.length,
+      sourcesActive: 5,
+      countriesCovered: 20,
+      avgLoadTime: 1.2,
+      uptime: 99.9,
+    });
+    setLoading(false);
+  };
+
+  useEffect(() => {
     loadStats();
   }, []);
 
@@ -98,8 +100,8 @@ export default function AdminPage() {
               Monitor your news application performance
             </p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <RefreshCw className="w-4 h-4" />
+          <button onClick={loadStats} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
         </div>

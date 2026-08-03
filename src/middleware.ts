@@ -167,7 +167,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/login" && pathname !== "/api/admin/author-login") {
+    const PUBLIC_ADMIN_ROUTES = ["/api/admin/login", "/api/admin/author-login", "/api/admin/recovery-email", "/api/admin/request-reset", "/api/admin/reset-password"];
+    if (pathname.startsWith("/api/admin/") && !PUBLIC_ADMIN_ROUTES.includes(pathname)) {
       const adminSession = request.cookies.get("admin-session");
       const authorSession = request.cookies.get("author-session");
       const session = adminSession?.value || authorSession?.value;

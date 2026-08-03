@@ -58,24 +58,42 @@ export default function NewsletterManagement() {
   const [confirmDelete, setConfirmDelete] = useState<{ type: "newsletter" | "subscriber"; id: string } | null>(null);
   const [composeData, setComposeData] = useState({ subject: "", preview: "", content: "" });
   const [newSubscriber, setNewSubscriber] = useState({ name: "", email: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const activeSubscribers = subscribers.filter((s) => s.status === "active").length;
 
   const createNewsletter = () => {
     if (!composeData.subject.trim()) return;
-    const nl: Newsletter = {
-      id: `n-${Date.now()}`,
-      subject: composeData.subject.trim(),
-      preview: composeData.preview.trim() || composeData.subject.trim(),
-      content: composeData.content,
-      status: "draft",
-      subscribers: 0,
-      openRate: 0,
-      clickRate: 0,
-    };
-    setNewsletters((prev) => [nl, ...prev]);
+    if (editingId) {
+      setNewsletters((prev) =>
+        prev.map((n) =>
+          n.id === editingId
+            ? { ...n, subject: composeData.subject.trim(), preview: composeData.preview.trim() || composeData.subject.trim(), content: composeData.content }
+            : n
+        )
+      );
+    } else {
+      const nl: Newsletter = {
+        id: `n-${Date.now()}`,
+        subject: composeData.subject.trim(),
+        preview: composeData.preview.trim() || composeData.subject.trim(),
+        content: composeData.content,
+        status: "draft",
+        subscribers: 0,
+        openRate: 0,
+        clickRate: 0,
+      };
+      setNewsletters((prev) => [nl, ...prev]);
+    }
     setComposeData({ subject: "", preview: "", content: "" });
+    setEditingId(null);
     setShowCompose(false);
+  };
+
+  const editNewsletter = (nl: Newsletter) => {
+    setEditingId(nl.id);
+    setComposeData({ subject: nl.subject, preview: nl.preview, content: nl.content });
+    setShowCompose(true);
   };
 
   const sendNewsletter = (id: string) => {
@@ -150,7 +168,7 @@ export default function NewsletterManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCompose(false)}>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold">Create Campaign</h2>
+              <h2 className="text-lg font-bold">{editingId ? "Edit Campaign" : "Create Campaign"}</h2>
               <button onClick={() => setShowCompose(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-4">
@@ -193,7 +211,7 @@ export default function NewsletterManagement() {
                 Cancel
               </button>
               <button onClick={createNewsletter} disabled={!composeData.subject.trim()} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                Save Draft
+                {editingId ? "Save Changes" : "Save Draft"}
               </button>
             </div>
           </div>
@@ -347,7 +365,7 @@ export default function NewsletterManagement() {
                           </button>
                         </>
                       )}
-                      <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                      <button onClick={() => editNewsletter(newsletter)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button onClick={() => setConfirmDelete({ type: "newsletter", id: newsletter.id })} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">

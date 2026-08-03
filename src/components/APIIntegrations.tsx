@@ -70,6 +70,47 @@ export default function APIIntegrations() {
   const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [newFeed, setNewFeed] = useState({ name: "", url: "", category: "World" });
   const [newWebhook, setNewWebhook] = useState({ name: "", url: "", events: "" });
+  const [settings, setSettings] = useState({
+    autoFetch: true,
+    dedupe: true,
+    rateLimit: true,
+    webhookRetry: true,
+  });
+  const [showCors, setShowCors] = useState(false);
+  const [corsOrigins, setCorsOrigins] = useState("https://worldlive.dpdns.org\nhttps://api.worldlive.dpdns.org");
+  const [editingWebhook, setEditingWebhook] = useState<Webhook | null>(null);
+  const [webhookForm, setWebhookForm] = useState({ name: "", url: "", events: "" });
+
+  const refreshFeed = (id: string) => {
+    setRssFeeds((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, lastFetched: "Just now", status: f.status === "error" ? "active" : f.status } : f))
+    );
+    const feed = rssFeeds.find((f) => f.id === id);
+    showNotice("success", `Feed "${feed?.name}" refreshed.`);
+  };
+
+  const openEditWebhook = (wh: Webhook) => {
+    setEditingWebhook(wh);
+    setWebhookForm({ name: wh.name, url: wh.url, events: wh.events.join(", ") });
+  };
+
+  const saveWebhook = () => {
+    if (!editingWebhook || !webhookForm.name.trim() || !webhookForm.url.trim()) return;
+    setWebhooks((prev) =>
+      prev.map((w) =>
+        w.id === editingWebhook.id
+          ? {
+              ...w,
+              name: webhookForm.name.trim(),
+              url: webhookForm.url.trim(),
+              events: webhookForm.events.split(",").map((e) => e.trim()).filter(Boolean),
+            }
+          : w
+      )
+    );
+    setEditingWebhook(null);
+    showNotice("success", "Webhook updated.");
+  };
 
   const showNotice = (type: "success" | "error", message: string) => {
     setNotice({ type, message });
@@ -235,7 +276,7 @@ export default function APIIntegrations() {
                 <span className="text-xs text-gray-400 hidden sm:block">{feed.articles} articles</span>
                 <span className="text-xs text-gray-400 hidden md:block">{feed.lastFetched}</span>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><RefreshCw className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => refreshFeed(feed.id)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Refresh feed"><RefreshCw className="w-3.5 h-3.5" /></button>
                   <button onClick={() => deleteFeed(feed.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
@@ -321,7 +362,7 @@ export default function APIIntegrations() {
                   <p className="text-[10px] text-gray-400">{wh.lastTriggered}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><Edit3 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => openEditWebhook(wh)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit webhook"><Edit3 className="w-3.5 h-3.5" /></button>
                   <button onClick={() => deleteWebhook(wh.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
@@ -334,23 +375,74 @@ export default function APIIntegrations() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6 space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Auto-Fetch RSS Feeds</p><p className="text-xs text-gray-400">Automatically fetch new articles every 5 minutes</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, autoFetch: !settings.autoFetch })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.autoFetch ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.autoFetch ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Duplicate Detection</p><p className="text-xs text-gray-400">Auto-detect and merge duplicate articles</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, dedupe: !settings.dedupe })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.dedupe ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.dedupe ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">API Rate Limiting</p><p className="text-xs text-gray-400">Limit API requests to 1000/minute</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, rateLimit: !settings.rateLimit })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.rateLimit ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.rateLimit ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Webhook Retry Logic</p><p className="text-xs text-gray-400">Retry failed webhooks up to 3 times</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, webhookRetry: !settings.webhookRetry })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.webhookRetry ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.webhookRetry ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">CORS Settings</p><p className="text-xs text-gray-400">Configure allowed origins for API access</p></div>
-            <button className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 rounded-lg text-xs font-medium">Configure</button>
+            <button onClick={() => setShowCors(!showCors)} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 rounded-lg text-xs font-medium">Configure</button>
+          </div>
+          {showCors && (
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+              <label className="block text-sm font-medium mb-2">Allowed Origins (one per line)</label>
+              <textarea value={corsOrigins} onChange={(e) => setCorsOrigins(e.target.value)} rows={4} className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono" />
+              <button onClick={() => showNotice("success", "CORS settings saved.")} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Save CORS
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {editingWebhook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setEditingWebhook(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
+              <div>
+                <h3 className="font-semibold">Edit Webhook</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Update webhook details</p>
+              </div>
+              <button onClick={() => setEditingWebhook(null)} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Webhook Name</label>
+                <input value={webhookForm.name} onChange={(e) => setWebhookForm({ ...webhookForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Events</label>
+                <input value={webhookForm.events} onChange={(e) => setWebhookForm({ ...webhookForm, events: e.target.value })} placeholder="Comma separated events" className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Webhook URL</label>
+                <input value={webhookForm.url} onChange={(e) => setWebhookForm({ ...webhookForm, url: e.target.value })} className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700/50">
+              <button onClick={() => setEditingWebhook(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+              <button onClick={saveWebhook} disabled={!webhookForm.name.trim() || !webhookForm.url.trim()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">Save Webhook</button>
+            </div>
           </div>
         </div>
       )}

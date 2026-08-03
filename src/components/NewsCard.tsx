@@ -98,7 +98,7 @@ export default function NewsCard({ article, variant = "default", showActions = f
             </button>
           </div>
           {showActions && (
-            <div className="absolute bottom-4 right-4 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+            <div className="absolute bottom-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <BookmarkButton article={article} variant="icon" />
               <ShareButtons title={article.title} url={article.url} compact />
             </div>
@@ -137,7 +137,7 @@ export default function NewsCard({ article, variant = "default", showActions = f
             {article.source.name} · {formatDate(article.publishedAt)}
           </p>
           {showActions && (
-            <div className="flex items-center gap-1 mt-2" onClick={(e) => e.preventDefault()}>
+            <div className="flex items-center gap-1 mt-2" onClick={(e) => e.stopPropagation()}>
               <BookmarkButton article={article} variant="icon" />
               <ShareButtons title={article.title} url={article.url} compact />
             </div>
@@ -173,7 +173,7 @@ export default function NewsCard({ article, variant = "default", showActions = f
               </span>
             </div>
           )}
-          <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.preventDefault()}>
+          <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             <BookmarkButton article={article} variant="icon" />
             <button
               onClick={handleFavorite}
@@ -205,7 +205,7 @@ export default function NewsCard({ article, variant = "default", showActions = f
             {truncateText(article.description, 120)}
           </p>
           {showActions && (
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50" onClick={(e) => e.preventDefault()}>
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50" onClick={(e) => e.stopPropagation()}>
               <ShareButtons title={article.title} url={article.url} compact />
             </div>
           )}

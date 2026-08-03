@@ -48,6 +48,15 @@ function checkPlagiarism(text: string): { score: number; matches: string[] } {
   };
 }
 
+function generateTags(text: string): string[] {
+  const stopWords = new Set(["the", "and", "for", "with", "from", "that", "this", "have", "been", "were", "will", "into", "over", "after", "their", "there", "about", "news", "report", "says", "said", "officials", "according"]);
+  const words = text.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !stopWords.has(w));
+  const counts = new Map<string, number>();
+  words.forEach((w) => counts.set(w, (counts.get(w) || 0) + 1));
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted.slice(0, 8).map(([w]) => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
 export default function AIAddons() {
   const [activeTab, setActiveTab] = useState<"summarizer" | "titles" | "plagiarism" | "tags">("summarizer");
   const [inputText, setInputText] = useState("");
@@ -58,7 +67,7 @@ export default function AIAddons() {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<AISuggestion[]>([]);
 
-  const processText = async (type: "summary" | "title" | "plagiarism") => {
+  const processText = async (type: "summary" | "title" | "plagiarism" | "tags") => {
     if (!inputText.trim()) return;
     setLoading(true);
     await new Promise((r) => setTimeout(r, 800));
@@ -71,6 +80,10 @@ export default function AIAddons() {
       const generated = generateAITitle(inputText);
       setTitles(generated);
       setHistory((prev) => [{ id: `ai-${Date.now()}`, type: "title" as const, input: inputText.slice(0, 100), output: generated[0], timestamp: new Date().toISOString() }, ...prev].slice(0, 20));
+    } else if (type === "tags") {
+      const tags = generateTags(inputText).join(", ");
+      setOutput(tags);
+      setHistory((prev) => [{ id: `ai-${Date.now()}`, type: "tags" as const, input: inputText.slice(0, 100), output: tags, timestamp: new Date().toISOString() }, ...prev].slice(0, 20));
     } else {
       const result = checkPlagiarism(inputText);
       setPlagiarismResult(result);
@@ -99,13 +112,13 @@ export default function AIAddons() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
-          { key: "summarizer", label: "Summarizer", icon: FileText, color: "blue" },
-          { key: "titles", label: "Title Suggestions", icon: Type, color: "purple" },
-          { key: "plagiarism", label: "Plagiarism Check", icon: Shield, color: "green" },
-          { key: "tags", label: "Auto Tags", icon: Zap, color: "orange" },
+          { key: "summarizer", label: "Summarizer", icon: FileText, color: "blue", active: "border-blue-500 bg-blue-50 dark:bg-blue-900/20", iconColor: "text-blue-500" },
+          { key: "titles", label: "Title Suggestions", icon: Type, color: "purple", active: "border-purple-500 bg-purple-50 dark:bg-purple-900/20", iconColor: "text-purple-500" },
+          { key: "plagiarism", label: "Plagiarism Check", icon: Shield, color: "green", active: "border-green-500 bg-green-50 dark:bg-green-900/20", iconColor: "text-green-500" },
+          { key: "tags", label: "Auto Tags", icon: Zap, color: "orange", active: "border-orange-500 bg-orange-50 dark:bg-orange-900/20", iconColor: "text-orange-500" },
         ].map((tab) => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key as typeof activeTab)} className={`p-4 rounded-xl border-2 text-left transition-all ${activeTab === tab.key ? `border-${tab.color}-500 bg-${tab.color}-50 dark:bg-${tab.color}-900/20` : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"}`}>
-            <tab.icon className={`w-5 h-5 mb-2 text-${tab.color}-500`} />
+          <button key={tab.key} onClick={() => setActiveTab(tab.key as typeof activeTab)} className={`p-4 rounded-xl border-2 text-left transition-all ${activeTab === tab.key ? tab.active : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"}`}>
+            <tab.icon className={`w-5 h-5 mb-2 ${tab.iconColor}`} />
             <p className="text-sm font-semibold">{tab.label}</p>
           </button>
         ))}
@@ -129,7 +142,7 @@ export default function AIAddons() {
             className="w-full h-48 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm outline-none focus:border-blue-500 resize-none"
           />
           <button
-            onClick={() => processText(activeTab === "tags" ? "summary" : activeTab === "summarizer" ? "summary" : activeTab === "titles" ? "title" : "plagiarism")}
+            onClick={() => processText(activeTab === "tags" ? "tags" : activeTab === "summarizer" ? "summary" : activeTab === "titles" ? "title" : "plagiarism")}
             disabled={loading || !inputText.trim()}
             className="mt-3 flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
           >

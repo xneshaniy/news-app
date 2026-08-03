@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { validateEmail, clampString } from "@/lib/validation";
+import { validateEmail, clampString, validateUrl } from "@/lib/validation";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://worldlive.dpdns.org";
 
@@ -8,6 +8,15 @@ function getResend() {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return null;
   return new Resend(apiKey);
+}
+
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 interface EmailRequest {
@@ -89,6 +98,9 @@ export async function POST(request: NextRequest) {
       if (!subscribers?.length || !headline) {
         return NextResponse.json({ error: "Missing required fields: subscribers, headline" }, { status: 400 });
       }
+      const safeHeadline = escapeHtml(clampString(String(headline), 200));
+      const safeSummary = summary ? escapeHtml(clampString(String(summary), 500)) : "";
+      const safeUrl = url && validateUrl(String(url)) ? String(url) : "";
       const html = `
         <!DOCTYPE html>
         <html>
@@ -98,9 +110,9 @@ export async function POST(request: NextRequest) {
             <h1 style="color: white; margin: 0; font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">⚡ Breaking News</h1>
           </div>
           <div style="background: white; padding: 24px; border-radius: 0 0 12px 12px; border: 1px solid #e2e8f0; border-top: none;">
-            <h2 style="color: #1e293b; margin: 0 0 12px; font-size: 22px; line-height: 1.3;">${headline}</h2>
-            ${summary ? `<p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">${summary}</p>` : ""}
-            ${url ? `<a href="${url}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">Read Full Story →</a>` : ""}
+            <h2 style="color: #1e293b; margin: 0 0 12px; font-size: 22px; line-height: 1.3;">${safeHeadline}</h2>
+            ${safeSummary ? `<p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">${safeSummary}</p>` : ""}
+            ${safeUrl ? `<a href="${safeUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">Read Full Story →</a>` : ""}
           </div>
           <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">
             <p>You received this because you're subscribed to WorldLive breaking news alerts.</p>
@@ -114,7 +126,7 @@ export async function POST(request: NextRequest) {
           resend.emails.send({
             from: "WorldLive Breaking <onboarding@resend.dev>",
             to: [email],
-            subject: `⚡ BREAKING: ${headline}`,
+            subject: `⚡ BREAKING: ${clampString(safeHeadline, 120)}`,
             html,
           })
         )
@@ -129,6 +141,7 @@ export async function POST(request: NextRequest) {
       if (!to) {
         return NextResponse.json({ error: "Missing required field: to" }, { status: 400 });
       }
+      const safeName = name ? escapeHtml(clampString(String(name), 100)) : "";
       const html = `
         <!DOCTYPE html>
         <html>
@@ -138,7 +151,7 @@ export async function POST(request: NextRequest) {
             <h1 style="color: white; margin: 0; font-size: 24px;">Welcome to WorldLive!</h1>
           </div>
           <div style="background: white; padding: 32px; border-radius: 0 0 12px 12px; border: 1px solid #e2e8f0; border-top: none;">
-            <p style="color: #334155; font-size: 16px; line-height: 1.6;">Hi ${name || "there"},</p>
+            <p style="color: #334155; font-size: 16px; line-height: 1.6;">Hi ${safeName || "there"},</p>
             <p style="color: #334155; font-size: 16px; line-height: 1.6;">Thank you for subscribing to WorldLive! You'll receive the best news from around the world, powered by AI.</p>
             <p style="color: #334155; font-size: 16px; line-height: 1.6;">Here's what you can expect:</p>
             <ul style="color: #334155; font-size: 15px; line-height: 1.8;">

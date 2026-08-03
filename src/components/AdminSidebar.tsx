@@ -8,7 +8,7 @@ import {
   MessageSquare, Megaphone, Mail, Search, Settings,
   ChevronLeft, ChevronRight, Shield, Zap, BarChart3,
   Menu, X, Globe, Share2, Bell,
-  CreditCard, Database, LogOut,
+  CreditCard, Database, LogOut, UserCog,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -40,6 +40,8 @@ const sidebarItems = [
   { href: "/admin/rbac", icon: Shield, label: "Roles & Permissions", roles: ["admin"] },
   { href: "/admin/ai-tools", icon: Zap, label: "AI Tools", roles: ["admin", "editor", "author"] },
   { href: "/admin/activity", icon: BarChart3, label: "Activity Logs", roles: ["admin"] },
+  { divider: "Account" },
+  { href: "/admin/account", icon: UserCog, label: "Account Settings", roles: ["admin", "editor", "author"] },
 ];
 
 interface SessionInfo {

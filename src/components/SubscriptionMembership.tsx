@@ -52,6 +52,13 @@ export default function SubscriptionMembership() {
   const [plans] = useState(MOCK_PLANS);
   const [subscribers] = useState(MOCK_SUBSCRIBERS);
   const [activeTab, setActiveTab] = useState<"plans" | "subscribers" | "analytics" | "settings">("plans");
+  const [settings, setSettings] = useState({
+    freeTrial: true,
+    autoRenewal: true,
+    gracePeriod: true,
+    dunningEmails: true,
+  });
+  const [viewing, setViewing] = useState<Subscriber | null>(null);
 
   const totalRevenue = plans.reduce((s, p) => s + p.revenue, 0);
   const totalSubscribers = plans.reduce((s, p) => s + p.subscribers, 0);
@@ -168,8 +175,8 @@ export default function SubscriptionMembership() {
                     <td className="px-4 py-3 text-sm font-medium">${sub.totalPaid.toFixed(2)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><Eye className="w-3.5 h-3.5" /></button>
-                        <button className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"><Edit3 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setViewing(sub)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="View details"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setViewing(sub)} className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20" title="Edit subscription"><Edit3 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -203,19 +210,55 @@ export default function SubscriptionMembership() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6 space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Free Trial Period</p><p className="text-xs text-gray-400">Offer 7-day free trial for new subscribers</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, freeTrial: !settings.freeTrial })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.freeTrial ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.freeTrial ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Automatic Renewal</p><p className="text-xs text-gray-400">Enable automatic subscription renewal</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, autoRenewal: !settings.autoRenewal })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.autoRenewal ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.autoRenewal ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Grace Period</p><p className="text-xs text-gray-400">7-day grace period for failed payments</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, gracePeriod: !settings.gracePeriod })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.gracePeriod ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.gracePeriod ? "translate-x-5" : ""}`} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Dunning Emails</p><p className="text-xs text-gray-400">Send automatic emails for failed payments</p></div>
-            <button className="relative w-11 h-6 bg-blue-600 rounded-full"><div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full translate-x-5" /></button>
+            <button onClick={() => setSettings({ ...settings, dunningEmails: !settings.dunningEmails })} className={`relative w-11 h-6 rounded-full transition-colors ${settings.dunningEmails ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.dunningEmails ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {viewing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setViewing(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Subscription Details</h2>
+              <button onClick={() => setViewing(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><XCircle className="w-5 h-5" /></button>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-gray-500">Subscriber</span><span className="font-medium">{viewing.name}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Email</span><span className="font-medium">{viewing.email}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Plan</span><span className="font-medium">{viewing.plan}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Status</span><span className="font-medium capitalize">{viewing.status.replace(/_/g, " ")}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Since</span><span className="font-medium">{viewing.since}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Next Billing</span><span className="font-medium">{viewing.nextBilling}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Total Paid</span><span className="font-medium">${viewing.totalPaid.toFixed(2)}</span></div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setViewing(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Close
+              </button>
+              <button onClick={() => setViewing(null)} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Edit Subscription
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -271,7 +271,7 @@ export default function CategoryTagManagement() {
                 <input placeholder="Search categories..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
               </div>
             </div>
-            {categories.map((cat) => renderCategory(cat))}
+            {categories.filter((cat) => cat.name.toLowerCase().includes(searchQuery.toLowerCase())).map((cat) => renderCategory(cat))}
           </div>
         ) : (
           <div>
@@ -282,7 +282,7 @@ export default function CategoryTagManagement() {
               </div>
             </div>
             <div className="p-4 flex flex-wrap gap-2">
-              {tags.map((tag) => (
+              {tags.filter((tag) => tag.name.toLowerCase().includes(searchQuery.toLowerCase())).map((tag) => (
                 <div key={tag.id} className="group flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-full">
                   <Hash className="w-3 h-3 text-gray-400" />
                   <span className="text-sm font-medium">{tag.name}</span>

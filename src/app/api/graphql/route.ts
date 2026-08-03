@@ -115,8 +115,14 @@ const mutationResolvers: Record<string, () => boolean> = {
   trackView: () => true,
 };
 
-function executeQuery(query: string): GQLResponse {
-  const trimmed = query.trim();
+function executeQuery(query: string, variables?: Record<string, unknown>): GQLResponse {
+  let trimmed = query.trim();
+  if (variables && Object.keys(variables).length > 0) {
+    for (const [key, value] of Object.entries(variables)) {
+      const literal = typeof value === "string" ? `"${value}"` : String(value);
+      trimmed = trimmed.replace(new RegExp(`\\$${key}\\b`, "g"), literal);
+    }
+  }
   if (trimmed.includes("__schema")) return { data: { __schema: { types: 10 } } };
   const isMutation = trimmed.startsWith("mutation");
   const fieldMatch = trimmed.match(/(?:query|mutation)?\s*(?:\w+\s*)?\{?\s*(\w+)\s*(?:\(([^)]*)\))?\s*\{?/);
@@ -148,7 +154,7 @@ export async function POST(request: NextRequest) {
   try {
     const body: GraphQLRequest = await request.json();
     if (!body.query) return NextResponse.json({ errors: [{ message: "Query is required" }] }, { status: 400 });
-    const result = executeQuery(body.query);
+    const result = executeQuery(body.query, body.variables);
     return NextResponse.json({ ...result, extensions: { timestamp: new Date().toISOString(), version: "1.0.0" } });
   } catch {
     return NextResponse.json({ errors: [{ message: "Internal server error" }] }, { status: 500 });

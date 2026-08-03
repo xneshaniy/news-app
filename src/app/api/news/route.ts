@@ -96,7 +96,7 @@ async function fetchMediaStack(
     const msCountry = country;
     const limit = Math.min(pageSize, 25);
     const offset = (page - 1) * limit;
-    const url = `http://api.mediastack.com/v1/news?access_key=${API_KEYS.mediastack}&keywords=${encodeURIComponent(query)}&countries=${msCountry}&limit=${limit}&offset=${offset}`;
+    const url = `https://api.mediastack.com/v1/news?access_key=${API_KEYS.mediastack}&keywords=${encodeURIComponent(query)}&countries=${msCountry}&limit=${limit}&offset=${offset}`;
     const res = await fetchWithTimeout(url, { next: { revalidate: 300 }, timeout: 8000 });
     if (!res.ok) return { articles: [], totalResults: 0 };
     const data = await res.json();

@@ -83,6 +83,7 @@ export default function VoiceSearch({ onResult }: VoiceSearchProps) {
   return (
     <>
       <button
+        type="button"
         onClick={toggleListening}
         className={`p-2 rounded-lg transition-colors ${
           isListening
@@ -98,6 +99,7 @@ export default function VoiceSearch({ onResult }: VoiceSearchProps) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl">
             <button
+              type="button"
               onClick={() => {
                 setShowModal(false);
                 setIsListening(false);
@@ -146,6 +148,7 @@ export default function VoiceSearch({ onResult }: VoiceSearchProps) {
 
             <div className="flex gap-3 justify-center">
               <button
+                type="button"
                 onClick={() => {
                   setShowModal(false);
                   setIsListening(false);
@@ -156,6 +159,7 @@ export default function VoiceSearch({ onResult }: VoiceSearchProps) {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={toggleListening}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium text-white transition-colors ${
                   isListening
