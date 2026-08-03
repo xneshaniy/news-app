@@ -83,6 +83,48 @@ export default function SourceManagement() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showKeys, setShowKeys] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [newSource, setNewSource] = useState({
+    name: "",
+    type: "api" as "api" | "rss" | "scraper",
+    apiKey: "",
+    baseUrl: "",
+  });
+
+  const showNotice = (type: "success" | "error", message: string) => {
+    setNotice({ type, message });
+    window.setTimeout(() => setNotice(null), 5000);
+  };
+
+  const addSource = () => {
+    if (!newSource.name || !newSource.baseUrl) {
+      showNotice("error", "Name and Base URL are required");
+      return;
+    }
+    const source: NewsSource = {
+      id: `src-${Date.now()}`,
+      name: newSource.name,
+      type: newSource.type,
+      status: "active",
+      apiKey: newSource.apiKey ? "••••••••••••" + newSource.apiKey.slice(-4) : "Not configured",
+      baseUrl: newSource.baseUrl,
+      articlesFetched: 0,
+      lastFetch: "Just now",
+      avgLatency: "—",
+      errorRate: 0,
+      rateLimit: 100,
+      rateUsed: 0,
+      categories: ["breaking"],
+      countries: ["us"],
+      priority: sources.length + 1,
+      autoRetry: true,
+    };
+    setSources((prev) => [source, ...prev]);
+    setNewSource({ name: "", type: "api", apiKey: "", baseUrl: "" });
+    setShowAddForm(false);
+    showNotice("success", `${source.name} added successfully.`);
+  };
 
   const toggleKeyVisibility = (id: string) => {
     setShowKeys((prev) => {
@@ -106,6 +148,8 @@ export default function SourceManagement() {
   };
 
   const deleteSource = (id: string) => {
+    const source = sources.find((s) => s.id === id);
+    if (!confirm(`Delete source ${source?.name}? This cannot be undone.`)) return;
     setSources((prev) => prev.filter((s) => s.id !== id));
   };
 
@@ -139,10 +183,37 @@ export default function SourceManagement() {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Manage news API sources, priorities, and health</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+        <button onClick={() => setShowAddForm(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" /> Add Source
         </button>
       </div>
+
+      {notice && (
+        <div className={`flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm ${notice.type === "success" ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"}`}>
+          {notice.type === "success" ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+          {notice.message}
+        </div>
+      )}
+
+      {showAddForm && (
+        <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-5 mb-6">
+          <h3 className="font-semibold mb-4">Add News Source</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input placeholder="Source name (e.g. Reuters)" value={newSource.name} onChange={(e) => setNewSource({ ...newSource, name: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+            <select value={newSource.type} onChange={(e) => setNewSource({ ...newSource, type: e.target.value as "api" | "rss" | "scraper" })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm">
+              <option value="api">API</option>
+              <option value="rss">RSS</option>
+              <option value="scraper">Scraper</option>
+            </select>
+            <input placeholder="Base URL (e.g. newsapi.org/v2)" value={newSource.baseUrl} onChange={(e) => setNewSource({ ...newSource, baseUrl: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm md:col-span-2" />
+            <input placeholder="API Key (optional)" value={newSource.apiKey} onChange={(e) => setNewSource({ ...newSource, apiKey: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono" />
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button onClick={addSource} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Add Source</button>
+            <button onClick={() => setShowAddForm(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">

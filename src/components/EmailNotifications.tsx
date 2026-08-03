@@ -62,13 +62,48 @@ const MOCK_RULES: NotificationRule[] = [
 ];
 
 export default function EmailNotifications() {
-  const [campaigns] = useState(MOCK_CAMPAIGNS);
+  const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
   const [templates] = useState(MOCK_TEMPLATES);
   const [rules, setRules] = useState(MOCK_RULES);
   const [activeTab, setActiveTab] = useState<"campaigns" | "templates" | "rules" | "analytics" | "settings">("campaigns");
+  const [showNewCampaign, setShowNewCampaign] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [newCampaign, setNewCampaign] = useState({ name: "", subject: "", recipients: "" });
+
+  const showNotice = (type: "success" | "error", message: string) => {
+    setNotice({ type, message });
+    window.setTimeout(() => setNotice(null), 5000);
+  };
+
+  const createCampaign = () => {
+    if (!newCampaign.name || !newCampaign.subject) {
+      showNotice("error", "Campaign name and subject are required");
+      return;
+    }
+    const campaign: EmailCampaign = {
+      id: `c-${Date.now()}`,
+      name: newCampaign.name,
+      subject: newCampaign.subject,
+      status: "draft",
+      recipients: newCampaign.recipients ? parseInt(newCampaign.recipients) || 0 : 0,
+      opened: 0,
+      clicked: 0,
+    };
+    setCampaigns((prev) => [campaign, ...prev]);
+    setNewCampaign({ name: "", subject: "", recipients: "" });
+    setShowNewCampaign(false);
+    showNotice("success", `Campaign "${campaign.name}" created as draft.`);
+  };
 
   const toggleRule = (id: string) => {
     setRules((prev) => prev.map((r) => r.id === id ? { ...r, enabled: !r.enabled } : r));
+  };
+
+  const deleteCampaign = (id: string) => {
+    const campaign = campaigns.find((c) => c.id === id);
+    if (!confirm(`Delete campaign "${campaign?.name}"? This cannot be undone.`)) return;
+    setCampaigns((prev) => prev.filter((c) => c.id !== id));
+    showNotice("success", `Campaign "${campaign?.name}" deleted.`);
   };
 
   return (
@@ -81,10 +116,17 @@ export default function EmailNotifications() {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Campaigns, templates, and notification rules</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+        <button onClick={() => setShowNewCampaign(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" /> New Campaign
         </button>
       </div>
+
+      {notice && (
+        <div className={`flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm ${notice.type === "success" ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"}`}>
+          {notice.type === "success" ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+          {notice.message}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
@@ -152,7 +194,7 @@ export default function EmailNotifications() {
                       <div className="flex items-center gap-1">
                         <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><Eye className="w-3.5 h-3.5" /></button>
                         <button className="p-1.5 text-gray-400 hover:text-yellow-500 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"><Edit3 className="w-3.5 h-3.5" /></button>
-                        <button className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => deleteCampaign(c.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -243,6 +285,40 @@ export default function EmailNotifications() {
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Daily Send Limit</p><p className="text-xs text-gray-400">Maximum emails per day</p></div>
             <select className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"><option>10,000</option><option>25,000</option><option>50,000</option><option>Unlimited</option></select>
+          </div>
+        </div>
+      )}
+
+      {showNewCampaign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowNewCampaign(false)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
+              <div>
+                <h3 className="font-semibold">New Campaign</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Create a new email campaign</p>
+              </div>
+              <button onClick={() => setShowNewCampaign(false)} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Campaign Name</label>
+                <input value={newCampaign.name} onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })} placeholder="e.g. Weekly Digest" className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email Subject</label>
+                <input value={newCampaign.subject} onChange={(e) => setNewCampaign({ ...newCampaign, subject: e.target.value })} placeholder="e.g. This Week in News" className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Recipients (optional)</label>
+                <input type="number" min="0" value={newCampaign.recipients} onChange={(e) => setNewCampaign({ ...newCampaign, recipients: e.target.value })} placeholder="e.g. 5000" className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700/50">
+              <button onClick={() => setShowNewCampaign(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+              <button onClick={createCampaign} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Create Campaign</button>
+            </div>
           </div>
         </div>
       )}

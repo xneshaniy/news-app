@@ -75,6 +75,64 @@ export default function SecurityCenter() {
     setIps((prev) => prev.map((e) => e.ip === ip ? { ...e, status: e.status === "blocked" ? "allowed" : "blocked" } : e));
   };
 
+  const exportLogs = () => {
+    let csv = "";
+    let filename = "";
+
+    if (activeTab === "logins") {
+      filename = "login-history.csv";
+      csv = ["User,Email,IP,Location,Device,Browser,Time,Status,2FA"]
+        .concat(
+          MOCK_LOGINS.map((l) =>
+            [l.user, l.email, l.ip, l.location, l.device, l.browser, l.time, l.success ? "Success" : "Failed", l.twoFactor ? "Yes" : "No"]
+              .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+              .join(",")
+          )
+        )
+        .join("\n");
+    } else if (activeTab === "audit") {
+      filename = "audit-logs.csv";
+      csv = ["User,Action,Target,IP,Time,Severity"]
+        .concat(
+          MOCK_AUDIT.map((a) =>
+            [a.user, a.action, a.target, a.ip, a.time, a.severity]
+              .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+              .join(",")
+          )
+        )
+        .join("\n");
+    } else if (activeTab === "ip") {
+      filename = "ip-monitoring.csv";
+      csv = ["IP,Location,Country,Requests,Last Seen,Status"]
+        .concat(
+          ips.map((e) =>
+            [e.ip, e.location, e.country, e.requests, e.lastSeen, e.status]
+              .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+              .join(",")
+          )
+        )
+        .join("\n");
+    } else {
+      filename = "security-export.csv";
+      csv = ["Section,Value"].concat([
+        `"Successful Logins","${MOCK_LOGINS.filter((l) => l.success).length}"`,
+        `"Failed Logins","${MOCK_LOGINS.filter((l) => !l.success).length}"`,
+        `"Blocked IPs","${ips.filter((i) => i.status === "blocked").length}"`,
+        `"2FA Enabled","3"`,
+      ]).join("\n");
+    }
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -85,7 +143,7 @@ export default function SecurityCenter() {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Authentication, monitoring, and audit logs</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+        <button onClick={exportLogs} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
           <Download className="w-4 h-4" /> Export Logs
         </button>
       </div>
@@ -165,8 +223,16 @@ export default function SecurityCenter() {
 
       {activeTab === "audit" && (
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/30">
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-gray-400" />
+              <input placeholder="Search audit logs..." value={search} onChange={(e) => setSearch(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+            </div>
+          </div>
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {MOCK_AUDIT.map((entry) => (
+            {MOCK_AUDIT.filter((entry) =>
+              !search || [entry.user, entry.action, entry.target, entry.ip, entry.severity].some((f) => f.toLowerCase().includes(search.toLowerCase()))
+            ).map((entry) => (
               <div key={entry.id} className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                 <div className={`w-2.5 h-2.5 rounded-full ${entry.severity === "critical" ? "bg-red-500" : entry.severity === "warning" ? "bg-yellow-500" : "bg-blue-500"}`} />
                 <div className="flex-1 min-w-0">

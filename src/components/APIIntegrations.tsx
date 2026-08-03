@@ -65,6 +65,71 @@ export default function APIIntegrations() {
   const [aiConfig, setAiConfig] = useState<AIConfig>({ provider: "OpenAI", apiKey: "sk-xxxx...xxxx", model: "gpt-4o", maxTokens: 2048, temperature: 0.7 });
   const [activeTab, setActiveTab] = useState<"rss" | "google-news" | "ai" | "webhooks" | "settings">("rss");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showAddFeed, setShowAddFeed] = useState(false);
+  const [showAddWebhook, setShowAddWebhook] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [newFeed, setNewFeed] = useState({ name: "", url: "", category: "World" });
+  const [newWebhook, setNewWebhook] = useState({ name: "", url: "", events: "" });
+
+  const showNotice = (type: "success" | "error", message: string) => {
+    setNotice({ type, message });
+    window.setTimeout(() => setNotice(null), 5000);
+  };
+
+  const addFeed = () => {
+    if (!newFeed.name || !newFeed.url) {
+      showNotice("error", "Feed name and URL are required");
+      return;
+    }
+    const feed: RSSFeed = {
+      id: `r-${Date.now()}`,
+      name: newFeed.name,
+      url: newFeed.url,
+      category: newFeed.category,
+      status: "active",
+      articles: 0,
+      lastFetched: "Just now",
+    };
+    setRssFeeds((prev) => [feed, ...prev]);
+    setNewFeed({ name: "", url: "", category: "World" });
+    setShowAddFeed(false);
+    showNotice("success", `RSS feed "${feed.name}" added.`);
+  };
+
+  const deleteFeed = (id: string) => {
+    const feed = rssFeeds.find((f) => f.id === id);
+    if (!confirm(`Delete feed "${feed?.name}"?`)) return;
+    setRssFeeds((prev) => prev.filter((f) => f.id !== id));
+    showNotice("success", `Feed "${feed?.name}" deleted.`);
+  };
+
+  const addWebhook = () => {
+    if (!newWebhook.name || !newWebhook.url) {
+      showNotice("error", "Webhook name and URL are required");
+      return;
+    }
+    const events = newWebhook.events.split(",").map((e) => e.trim()).filter(Boolean);
+    const webhook: Webhook = {
+      id: `w-${Date.now()}`,
+      name: newWebhook.name,
+      url: newWebhook.url,
+      events: events.length > 0 ? events : ["article.published"],
+      status: "active",
+      lastTriggered: "Never",
+      successRate: 100,
+    };
+    setWebhooks((prev) => [webhook, ...prev]);
+    setNewWebhook({ name: "", url: "", events: "" });
+    setShowAddWebhook(false);
+    showNotice("success", `Webhook "${webhook.name}" added.`);
+  };
+
+  const deleteWebhook = (id: string) => {
+    const webhook = webhooks.find((w) => w.id === id);
+    if (!confirm(`Delete webhook "${webhook?.name}"?`)) return;
+    setWebhooks((prev) => prev.filter((w) => w.id !== id));
+    showNotice("success", `Webhook "${webhook?.name}" deleted.`);
+  };
 
   return (
     <div>
@@ -77,6 +142,45 @@ export default function APIIntegrations() {
           <p className="text-sm text-gray-500 dark:text-gray-400">RSS feeds, webhooks, and third-party integrations</p>
         </div>
       </div>
+
+      {notice && (
+        <div className={`flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm ${notice.type === "success" ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"}`}>
+          {notice.type === "success" ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+          {notice.message}
+        </div>
+      )}
+
+      {showAddFeed && (
+        <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-5 mb-6">
+          <h3 className="font-semibold mb-4">Add RSS Feed</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input placeholder="Feed name (e.g. BBC World)" value={newFeed.name} onChange={(e) => setNewFeed({ ...newFeed, name: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+            <select value={newFeed.category} onChange={(e) => setNewFeed({ ...newFeed, category: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm">
+              {["World", "Technology", "Politics", "Business", "Sports", "Entertainment", "Health", "Science"].map((c) => <option key={c}>{c}</option>)}
+            </select>
+            <input placeholder="RSS URL (https://...)" value={newFeed.url} onChange={(e) => setNewFeed({ ...newFeed, url: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono md:col-span-2" />
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button onClick={addFeed} className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors">Add Feed</button>
+            <button onClick={() => setShowAddFeed(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showAddWebhook && (
+        <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-5 mb-6">
+          <h3 className="font-semibold mb-4">Add Webhook</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input placeholder="Webhook name (e.g. Slack Alerts)" value={newWebhook.name} onChange={(e) => setNewWebhook({ ...newWebhook, name: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+            <input placeholder="Events (comma separated, e.g. article.published, breaking.news)" value={newWebhook.events} onChange={(e) => setNewWebhook({ ...newWebhook, events: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+            <input placeholder="Webhook URL (https://...)" value={newWebhook.url} onChange={(e) => setNewWebhook({ ...newWebhook, url: e.target.value })} className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono md:col-span-2" />
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button onClick={addWebhook} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Add Webhook</button>
+            <button onClick={() => setShowAddWebhook(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
@@ -115,7 +219,7 @@ export default function APIIntegrations() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700/50">
             <h3 className="font-semibold">RSS Feed Sources</h3>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-medium hover:bg-orange-600 transition-colors">
+            <button onClick={() => setShowAddFeed(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-medium hover:bg-orange-600 transition-colors">
               <Plus className="w-3 h-3" /> Add Feed
             </button>
           </div>
@@ -132,7 +236,7 @@ export default function APIIntegrations() {
                 <span className="text-xs text-gray-400 hidden md:block">{feed.lastFetched}</span>
                 <div className="flex items-center gap-1">
                   <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><RefreshCw className="w-3.5 h-3.5" /></button>
-                  <button className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => deleteFeed(feed.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             ))}
@@ -172,7 +276,7 @@ export default function APIIntegrations() {
                 <input type={showApiKey ? "text" : "password"} value={aiConfig.apiKey} onChange={(e) => setAiConfig({ ...aiConfig, apiKey: e.target.value })} className="w-full px-4 py-2 pr-10 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm font-mono" />
                 <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">{showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
               </div>
-              <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"><Copy className="w-4 h-4" /></button>
+                <button onClick={() => { navigator.clipboard?.writeText(aiConfig.apiKey); showNotice("success", "API key copied to clipboard."); }} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"><Copy className="w-4 h-4" /></button>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -195,7 +299,7 @@ export default function APIIntegrations() {
         <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700/50">
             <h3 className="font-semibold">Webhooks</h3>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors">
+            <button onClick={() => setShowAddWebhook(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors">
               <Plus className="w-3 h-3" /> Add Webhook
             </button>
           </div>
@@ -218,7 +322,7 @@ export default function APIIntegrations() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><Edit3 className="w-3.5 h-3.5" /></button>
-                  <button className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => deleteWebhook(wh.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             ))}
