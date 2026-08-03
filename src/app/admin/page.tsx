@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
 import {
-  BarChart3, Users, Eye, Heart, TrendingUp, Clock,
-  Globe, Newspaper, Activity, Settings, RefreshCw, Star,
+  BarChart3, Eye, Heart, TrendingUp, Clock,
+  Globe, Newspaper, Activity, RefreshCw,
 } from "lucide-react";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import FeaturedStoriesAdmin from "@/components/FeaturedStoriesAdmin";

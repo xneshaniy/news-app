@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Shield, Plus, Edit3, Trash2, Check, X, Users, Lock,
-  Eye, EyeOff, Settings, FileText, MessageSquare, BarChart3,
-  Globe, Mail, Megaphone, Image, Search, ChevronDown,
-} from "lucide-react";
+import { Shield, Plus, Trash2 } from "lucide-react";
 
 interface Role {
   id: string;
@@ -109,8 +105,6 @@ const CATEGORIES = ["Content", "Moderation", "Users", "Monetization", "Marketing
 export default function RBACManagement() {
   const [roles, setRoles] = useState<Role[]>(DEFAULT_ROLES);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingRole, setEditingRole] = useState<Role | null>(null);
-  const [expandedCategory, setExpandedCategory] = useState<string>("Content");
   const [newRole, setNewRole] = useState({ name: "", description: "", color: "#6366f1", permissions: [] as string[] });
 
   const addRole = () => {
@@ -133,14 +127,6 @@ export default function RBACManagement() {
     const role = roles.find((r) => r.id === id);
     if (role?.isSystem) return;
     setRoles((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const togglePermission = (roleId: string, permId: string) => {
-    setRoles((prev) => prev.map((r) => {
-      if (r.id !== roleId) return r;
-      const has = r.permissions.includes(permId);
-      return { ...r, permissions: has ? r.permissions.filter((p) => p !== permId) : [...r.permissions, permId] };
-    }));
   };
 
   const toggleNewPermission = (permId: string) => {

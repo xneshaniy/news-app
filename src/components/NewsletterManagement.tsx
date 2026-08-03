@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Mail, Plus, Send, Trash2, Search, Users, BarChart3,
-  Clock, CheckCircle, Eye, Edit3, Calendar, X, FileText,
-} from "lucide-react";
+import { Plus, Send, Trash2, Search, Users, BarChart3, Clock, Eye, Edit3, Calendar, X, FileText } from "lucide-react";
 
 interface Newsletter {
   id: string;

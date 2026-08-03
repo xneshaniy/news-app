@@ -51,7 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const users = JSON.parse(localStorage.getItem("registered-users") || "[]");
     const found = users.find((u: User & { password: string }) => u.email === email && u.password === password);
     if (found) {
-      const { password: _, ...userData } = found;
+      const userData = { ...found };
+      delete (userData as User & { password?: string }).password;
       setUser(userData);
       return true;
     }
@@ -82,7 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     users.push(newUser);
     localStorage.setItem("registered-users", JSON.stringify(users));
 
-    const { password: _, ...userData } = newUser;
+    const userData = { ...newUser };
+    delete (userData as User & { password?: string }).password;
     setUser(userData);
     return true;
   };

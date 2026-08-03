@@ -2,14 +2,12 @@
 
 interface SparklineProps {
   data: number[];
-  color?: string;
   width?: number;
   height?: number;
 }
 
 export default function Sparkline({
   data,
-  color = "#3b82f6",
   width = 120,
   height = 40,
 }: SparklineProps) {

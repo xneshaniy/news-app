@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import { useState } from "react";
 import { LiveTVChannel } from "@/types/news";
-import { Play, Tv, Globe } from "lucide-react";
+import { Play, Tv } from "lucide-react";
 
 const LIVE_TV_CHANNELS: LiveTVChannel[] = [
   {

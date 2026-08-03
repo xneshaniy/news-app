@@ -11,7 +11,6 @@ export default function NewsletterSubscription({ variant = "inline" }: Newslette
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [showModal, setShowModal] = useState(false);
-  const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +29,9 @@ export default function NewsletterSubscription({ variant = "inline" }: Newslette
 
     saved.push(email);
     localStorage.setItem("newsletter-subscriptions", JSON.stringify(saved));
-    setSubscribedEmails(saved);
     setStatus("success");
     setEmail("");
     setTimeout(() => setStatus("idle"), 3000);
-  };
-
-  const handleUnsubscribe = (unsubEmail: string) => {
-    const saved = JSON.parse(localStorage.getItem("newsletter-subscriptions") || "[]");
-    const updated = saved.filter((e: string) => e !== unsubEmail);
-    localStorage.setItem("newsletter-subscriptions", JSON.stringify(updated));
-    setSubscribedEmails(updated);
   };
 
   if (variant === "sidebar") {

@@ -38,7 +38,19 @@ export async function POST(request: NextRequest) {
 
   const oauthUrl = getPlatformAuthUrl(platform);
   if (oauthUrl) {
-    return NextResponse.json({ mode: "oauth", url: oauthUrl, message: "Redirecting to platform authorization..." });
+    const parsed = new URL(oauthUrl);
+    const state = parsed.searchParams.get("state");
+    const response = NextResponse.json({ mode: "oauth", url: oauthUrl, message: "Redirecting to platform authorization..." });
+    if (state) {
+      response.cookies.set("oauth_state", state, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 600,
+      });
+    }
+    return response;
   }
 
   const account = connectAccount(platform, false);

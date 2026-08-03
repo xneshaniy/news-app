@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, X, Calendar, Globe, Tag, Clock, ChevronDown } from "lucide-react";
+import { Search, Filter, X, Calendar, Globe, Tag, Clock } from "lucide-react";
 import { COUNTRIES, CATEGORIES } from "@/lib/constants";
 
 interface SearchFilters {
@@ -46,7 +46,6 @@ export default function AdvancedSearch({ onSearch, initialQuery = "" }: Advanced
     sources: [],
   });
   const [showFilters, setShowFilters] = useState(false);
-  const [showSourceDropdown, setShowSourceDropdown] = useState(false);
 
   const updateFilter = <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

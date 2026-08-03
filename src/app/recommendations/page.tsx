@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Header from "@/components/Header";
 import NewsCard from "@/components/NewsCard";
 import { Article } from "@/types/news";
@@ -13,7 +13,7 @@ export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
   const [trending, setTrending] = useState<string[]>([]);
 
-  const fetchRecommendations = () => {
+  const fetchRecommendations = useCallback(() => {
     setLoading(true);
     fetch(`/api/recommendations?country=${country}`)
       .then((res) => res.json())
@@ -22,7 +22,7 @@ export default function RecommendationsPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  };
+  }, [country]);
 
   useEffect(() => {
     fetchRecommendations();
@@ -36,7 +36,7 @@ export default function RecommendationsPage() {
       "Cryptocurrency",
       "Elections 2024",
     ]);
-  }, [country]);
+  }, [country, fetchRecommendations]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

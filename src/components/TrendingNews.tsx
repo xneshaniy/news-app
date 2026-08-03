@@ -10,6 +10,21 @@ export default function TrendingNews() {
   const [trending, setTrending] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const calculateTrendScore = (article: Article): number => {
+    const now = new Date().getTime();
+    const published = new Date(article.publishedAt).getTime();
+    const hoursOld = (now - published) / (1000 * 60 * 60);
+    const recencyScore = Math.max(0, 100 - hoursOld * 2);
+    const sourceScore = ["reuters", "bbc", "cnn", "ap"].includes(
+      article.source?.name?.toLowerCase()
+    )
+      ? 30
+      : 10;
+    const descriptionScore = article.description?.length > 100 ? 15 : 5;
+
+    return recencyScore + sourceScore + descriptionScore;
+  };
+
   useEffect(() => {
     const fetchTrending = async () => {
       try {
@@ -33,21 +48,6 @@ export default function TrendingNews() {
 
     fetchTrending();
   }, []);
-
-  const calculateTrendScore = (article: Article): number => {
-    const now = new Date().getTime();
-    const published = new Date(article.publishedAt).getTime();
-    const hoursOld = (now - published) / (1000 * 60 * 60);
-    const recencyScore = Math.max(0, 100 - hoursOld * 2);
-    const sourceScore = ["reuters", "bbc", "cnn", "ap"].includes(
-      article.source?.name?.toLowerCase()
-    )
-      ? 30
-      : 10;
-    const descriptionScore = article.description?.length > 100 ? 15 : 5;
-
-    return recencyScore + sourceScore + descriptionScore;
-  };
 
   if (loading) {
     return (

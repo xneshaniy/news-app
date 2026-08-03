@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import {
-  Sparkles, FileText, Type, Shield, Image, Copy,
-  Check, RefreshCw, Loader2, Zap, AlertTriangle,
-  Lightbulb, Wand2, Search, Globe,
+  Sparkles, FileText, Type, Shield, Copy,
+  Check, Loader2, Zap, AlertTriangle,
+  Lightbulb,
 } from "lucide-react";
 
 interface AISuggestion {

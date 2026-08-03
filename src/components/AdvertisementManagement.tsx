@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Megaphone, Plus, Edit3, Trash2, Eye, EyeOff,
-  BarChart3, DollarSign, Calendar, Target, Search,
-  CheckCircle, PauseCircle, PlayCircle, Globe, Layout,
-} from "lucide-react";
+import { Megaphone, Plus, Trash2, Eye, EyeOff, DollarSign, Calendar, Search, PauseCircle, PlayCircle } from "lucide-react";
 
 interface Advertisement {
   id: string;

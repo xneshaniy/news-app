@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Shield, Lock, Key, Eye, EyeOff, CheckCircle, XCircle,
-  Smartphone, Globe, Clock, AlertTriangle, Ban,
-  Download, RefreshCw, Search, Filter, User,
-  LogIn, LogOut, Settings, Fingerprint, ShieldAlert,
-} from "lucide-react";
+import { Shield, Key, Eye, CheckCircle, XCircle, Globe, Ban, Download, Search, LogIn, Settings, Fingerprint, ShieldAlert } from "lucide-react";
 
 interface LoginEntry {
   id: string;

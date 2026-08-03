@@ -30,7 +30,7 @@ async function callOpenRouter(messages: { role: string; content: string }[], mod
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, content, title, tags, model } = body;
+    const { action, content, model } = body;
 
     if (!OPENROUTER_API_KEY) {
       return NextResponse.json({ error: "OpenRouter API key not configured" }, { status: 500 });

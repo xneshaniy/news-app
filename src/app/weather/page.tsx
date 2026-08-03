@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { useCountry } from "@/components/CountryProvider";
 import { WeatherData } from "@/types/news";
 import { COUNTRIES } from "@/lib/constants";
-import { Cloud, Droplets, Wind, Thermometer, MapPin } from "lucide-react";
+import { Droplets, Wind, Thermometer, MapPin } from "lucide-react";
 
 export default function WeatherPage() {
   const { country, setCountry } = useCountry();

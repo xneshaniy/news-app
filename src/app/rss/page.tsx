@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import NewsCard from "@/components/NewsCard";
 import { Article } from "@/types/news";
-import { Rss, Plus, Trash2, Globe, RefreshCw, Loader2, ExternalLink } from "lucide-react";
+import { Rss, Plus, Trash2, Globe, RefreshCw, Loader2 } from "lucide-react";
 
 interface RSSFeed {
   id: string;

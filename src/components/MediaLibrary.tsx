@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import {
-  Image, Upload, Search, Grid, List, Trash2, Copy,
-  File, Film, Music, FileText, Check, X, Plus,
-} from "lucide-react";
+import { Image, Upload, Search, Grid, List, Trash2, Copy, File, Film, Music, FileText, Check } from "lucide-react";
 
 interface MediaItem {
   id: string;

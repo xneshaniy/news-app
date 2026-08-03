@@ -57,7 +57,24 @@ export default function ArticlePage({
       }
     };
     fetchArticle();
-  }, [id]);
+  }, [id, addToHistory]);
+
+  useSEOMeta(article?.title || "", {
+    description: article?.description,
+    content: article?.content,
+    image: article?.image,
+    canonicalPath: article ? `/article/${encodeURIComponent(article.id)}` : "/",
+    type: "article",
+    publishedAt: article?.publishedAt,
+    author: article?.source?.name,
+    breadcrumbs: article
+      ? [
+          { name: "Home", url: "/" },
+          { name: article.source?.name || "News", url: "/" },
+          { name: article.title, url: `/article/${encodeURIComponent(article.id)}` },
+        ]
+      : undefined,
+  });
 
   if (loading) {
     return (
@@ -100,21 +117,6 @@ export default function ArticlePage({
   }
 
   const favorited = isFavorite(article.id);
-
-  useSEOMeta(article.title, {
-    description: article.description,
-    content: article.content,
-    image: article.image,
-    canonicalPath: `/article/${encodeURIComponent(article.id)}`,
-    type: "article",
-    publishedAt: article.publishedAt,
-    author: article.source?.name,
-    breadcrumbs: [
-      { name: "Home", url: "/" },
-      { name: article.source?.name || "News", url: "/" },
-      { name: article.title, url: `/article/${encodeURIComponent(article.id)}` },
-    ],
-  });
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

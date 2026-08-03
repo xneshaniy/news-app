@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cloud, Droplets, Wind, Thermometer } from "lucide-react";
+import { Droplets, Wind } from "lucide-react";
 import { useCountry } from "./CountryProvider";
 import { WeatherData } from "@/types/news";
 

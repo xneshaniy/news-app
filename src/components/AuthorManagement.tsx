@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Users, Plus, Trash2, Mail, Shield, Search,
-  UserPlus, Check, KeyRound, AlertCircle,
-} from "lucide-react";
+import { Trash2, Mail, Shield, Search, UserPlus, Check, KeyRound, AlertCircle } from "lucide-react";
 
 interface Author {
   id: string;

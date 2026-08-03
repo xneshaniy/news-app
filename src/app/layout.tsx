@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import dynamic from "next/dynamic";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { FavoritesProvider } from "@/components/FavoritesProvider";
@@ -109,18 +110,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="WorldLive" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
-        {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7YKDMEGQW" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-V7YKDMEGQW');
-            `,
-          }}
-        />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1366863868438764"
@@ -161,6 +150,7 @@ export default function RootLayout({
           </AuthProvider>
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId="G-V7YKDMEGQW" />
     </html>
   );
 }

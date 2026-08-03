@@ -107,7 +107,7 @@ export function useSEOMeta(title: string, options: SEOMetaOptions = {}) {
     } else if (options.breadcrumbs && options.breadcrumbs.length > 0) {
       upsertJSONLD(generateBreadcrumbJSONLD(options.breadcrumbs));
     }
-  }, [title, options.description, options.content, options.image, options.canonicalPath, options.type, options.publishedAt, options.author]);
+  }, [title, options.description, options.content, options.image, options.canonicalPath, options.type, options.publishedAt, options.author, options.breadcrumbs]);
 
   return seo;
 }

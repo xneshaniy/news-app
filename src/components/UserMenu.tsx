@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
-import { User, LogOut, Settings, Mail, Lock, UserPlus, X, ChevronDown, Save, Bell } from "lucide-react";
+import { User, LogOut, Settings, Mail, Lock, X, ChevronDown, Save, Bell } from "lucide-react";
 
 export default function UserMenu() {
   const { user, isAuthenticated, login, register, logout, updateProfile } = useAuth();

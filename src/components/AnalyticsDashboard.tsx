@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  BarChart3, TrendingUp, Users, Eye, Clock, Globe,
-  ArrowUpRight, ArrowDownRight, RefreshCw, Calendar,
-} from "lucide-react";
+import { BarChart3, TrendingUp, Users, Eye, Clock, Globe, ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
 
 interface AnalyticsData {
   pageViews: number;
@@ -50,46 +47,6 @@ const generateMockData = (): AnalyticsData => ({
     { action: "Category View", time: "15 min ago", detail: "Sports - Premier League" },
   ],
 });
-
-function SparklineChart({ data, color = "#3b82f6" }: { data: number[]; color?: string }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
-  const width = 120;
-  const height = 32;
-  const padding = 2;
-
-  const points = data
-    .map((value, i) => {
-      const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
-      const y = height - padding - ((value - min) / range) * (height - 2 * padding);
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return (
-    <svg width={width} height={height} className="flex-shrink-0">
-      <defs>
-        <linearGradient id={`grad-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon
-        points={`${padding},${height - padding} ${points} ${width - padding},${height - padding}`}
-        fill={`url(#grad-${color.replace("#", "")})`}
-      />
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsData | null>(null);

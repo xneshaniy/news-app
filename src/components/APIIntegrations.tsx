@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Globe, Key, Rss, Zap, Webhook, Search, Settings,
-  CheckCircle, XCircle, ExternalLink, Plus, Trash2,
-  Edit3, Eye, EyeOff, Copy, RefreshCw, Code,
-  AlertTriangle, Clock, Activity, Link, Database,
-} from "lucide-react";
+import { Globe, Rss, Zap, Webhook, Search, Settings, CheckCircle, XCircle, Plus, Trash2, Edit3, Eye, EyeOff, Copy, RefreshCw, AlertTriangle } from "lucide-react";
 
 interface RSSFeed {
   id: string;

@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Users, UserPlus, Shield, Ban, CheckCircle, XCircle,
-  Eye, Edit3, Trash2, Search, Mail, Activity,
-  X,
-} from "lucide-react";
+import { UserPlus, Shield, Ban, CheckCircle, XCircle, Eye, Edit3, Trash2, Search, X } from "lucide-react";
 
 interface ManagedUser {
   id: string;

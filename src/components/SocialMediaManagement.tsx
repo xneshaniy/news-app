@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Share2, BarChart3, Plus, Settings, Globe, AlertCircle,
-  CheckCircle, Link2, Unlink, RefreshCw, X, ExternalLink,
-} from "lucide-react";
+import { Share2, Plus, Settings, Globe, AlertCircle, CheckCircle, Link2, Unlink, RefreshCw, X, ExternalLink } from "lucide-react";
 
 interface SocialAccount {
   id: string;
@@ -99,15 +96,6 @@ export default function SocialMediaManagement() {
     }
   }, [searchParams, showNotice, loadAccounts]);
 
-  const persistAccounts = (next: SocialAccount[]) => {
-    setAccounts(next);
-    try {
-      localStorage.setItem("social-accounts", JSON.stringify(next));
-    } catch {
-      // ignore quota errors
-    }
-  };
-
   const connectAccount = async (platformKey: string) => {
     setConnecting(platformKey);
     try {
@@ -125,7 +113,15 @@ export default function SocialMediaManagement() {
         return;
       }
 
-      persistAccounts([data.account, ...accounts]);
+      setAccounts((prev) => {
+        const next = [data.account, ...prev.filter((a) => a.id !== data.account.id)];
+        try {
+          localStorage.setItem("social-accounts", JSON.stringify(next));
+        } catch {
+          // ignore quota errors
+        }
+        return next;
+      });
       showNotice("success", data.message || `${data.account.platform} connected.`);
       setShowConnectModal(false);
     } catch (e) {
@@ -141,7 +137,15 @@ export default function SocialMediaManagement() {
       const res = await fetch(`/api/admin/social?id=${account.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to disconnect");
-      persistAccounts(accounts.filter((a) => a.id !== account.id));
+      setAccounts((prev) => {
+        const next = prev.filter((a) => a.id !== account.id);
+        try {
+          localStorage.setItem("social-accounts", JSON.stringify(next));
+        } catch {
+          // ignore quota errors
+        }
+        return next;
+      });
       if (!silent) showNotice("success", data.message || `${account.platform} disconnected.`);
     } catch (e) {
       if (!silent) showNotice("error", e instanceof Error ? e.message : "Failed to disconnect account");
@@ -153,11 +157,21 @@ export default function SocialMediaManagement() {
     if (!platform) return;
     setConnecting(account.id);
     try {
-      await disconnectAccount(account, true);
-      await new Promise((r) => setTimeout(r, 100));
+      const res = await fetch(`/api/admin/social?id=${account.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to disconnect");
+      setAccounts((prev) => {
+        const next = prev.filter((a) => a.id !== account.id);
+        try {
+          localStorage.setItem("social-accounts", JSON.stringify(next));
+        } catch {
+          // ignore quota errors
+        }
+        return next;
+      });
       await connectAccount(platform.key);
-    } catch {
-      // handled in helpers
+    } catch (e) {
+      showNotice("error", e instanceof Error ? e.message : "Failed to reconnect account");
     } finally {
       setConnecting(null);
     }
@@ -236,8 +250,8 @@ export default function SocialMediaManagement() {
                       </div>
                     </div>
                     <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full ${acc.connected ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-gray-100 dark:bg-gray-700 text-gray-500"}`}>
-                      <CheckCircle className="w-3 h-3" />
-                      Connected
+                      {acc.connected ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                      {acc.connected ? "Connected" : "Not Connected"}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">

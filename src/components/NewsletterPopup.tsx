@@ -20,10 +20,6 @@ export default function NewsletterPopup() {
       JSON.parse(localStorage.getItem("newsletter-subscriptions") || "[]").length > 0;
     if (hasSubscribed) return;
 
-    const isStandalone =
-      typeof window !== "undefined" &&
-      window.matchMedia("(display-mode: standalone)").matches;
-
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const maybeShow = () => {

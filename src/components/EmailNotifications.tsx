@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Mail, Send, Bell, Clock, CheckCircle, XCircle,
-  Plus, Trash2, Edit3, Eye, BarChart3, Users,
-  Settings, ToggleLeft, ToggleRight, RefreshCw,
-  FileText, AlertTriangle, Zap, Globe, Server, Key, MessageSquare,
-} from "lucide-react";
+import { Mail, Send, Bell, CheckCircle, XCircle, Plus, Trash2, Edit3, Eye, BarChart3, Users, Settings, RefreshCw, FileText, AlertTriangle, Zap, Server, Key, MessageSquare } from "lucide-react";
 
 interface EmailCampaign {
   id: string;

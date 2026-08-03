@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Globe, Key, RefreshCw, CheckCircle, XCircle, Eye, EyeOff,
-  Copy, Plus, Trash2, Edit3, Settings, Activity, Clock,
-  BarChart3, AlertTriangle, Zap, Database, Link, ToggleLeft,
-  ToggleRight, Shield, ChevronDown, ExternalLink,
-} from "lucide-react";
+import { RefreshCw, CheckCircle, Eye, EyeOff, Copy, Plus, Trash2, Activity, AlertTriangle, Database, ChevronDown } from "lucide-react";
 
 interface NewsSource {
   id: string;
@@ -159,14 +154,6 @@ export default function SourceManagement() {
     paused: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600",
     "rate-limited": "bg-orange-100 dark:bg-orange-900/30 text-orange-600",
     degraded: "bg-orange-100 dark:bg-orange-900/30 text-orange-600",
-  };
-
-  const dotColors: Record<string, string> = {
-    active: "bg-green-500",
-    error: "bg-red-500",
-    paused: "bg-yellow-500",
-    "rate-limited": "bg-orange-500",
-    degraded: "bg-orange-500",
   };
 
   const totalArticles = sources.reduce((s, src) => s + src.articlesFetched, 0);

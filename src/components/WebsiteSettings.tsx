@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Settings, Globe, Palette, Layout, Shield, Bell,
-  Save, Check, RefreshCw, Code, Server, Database,
-  Clock, Zap, Image, Monitor, Smartphone, Sun, Moon,
-} from "lucide-react";
+import { Globe, Palette, Save, Check, Code, Server, Database, Zap, Sun, Moon } from "lucide-react";
 
 interface WebsiteSettings {
   siteName: string;
@@ -59,6 +55,14 @@ const DEFAULT_SETTINGS: WebsiteSettings = {
 
 const TIMEZONES = ["UTC", "US/Eastern", "US/Central", "US/Pacific", "Europe/London", "Europe/Paris", "Europe/Berlin", "Asia/Tokyo", "Asia/Shanghai", "Asia/Kolkata", "Australia/Sydney"];
 
+function ToggleSwitch({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button onClick={() => onChange(!value)} className={`relative w-11 h-6 rounded-full transition-colors ${value ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+      <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${value ? "translate-x-5" : ""}`} />
+    </button>
+  );
+}
+
 export default function WebsiteSettingsPanel() {
   const [settings, setSettings] = useState<WebsiteSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
@@ -69,12 +73,6 @@ export default function WebsiteSettingsPanel() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
-
-  const ToggleSwitch = ({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) => (
-    <button onClick={() => onChange(!value)} className={`relative w-11 h-6 rounded-full transition-colors ${value ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
-      <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${value ? "translate-x-5" : ""}`} />
-    </button>
-  );
 
   return (
     <div>

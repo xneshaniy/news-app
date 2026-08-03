@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import NewsFeed from "@/components/NewsFeed";
 import AdvancedSearch from "@/components/AdvancedSearch";
@@ -13,7 +13,6 @@ function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get("q") || "";
-  const [searchQuery, setSearchQuery] = useState(query);
 
   useSEOMeta(query ? `Search results for "${query}"` : "Search News", {
     description: query

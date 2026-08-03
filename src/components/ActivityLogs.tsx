@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Activity, Search, Filter, Calendar, User, FileText,
-  Settings, Shield, Eye, Trash2, Edit3, Plus,
-  CheckCircle, AlertCircle, Info, XCircle, Download,
-} from "lucide-react";
+import { Search, User, FileText, Settings, Shield, Eye, CheckCircle, AlertCircle, Info, XCircle, Download } from "lucide-react";
 
 interface LogEntry {
   id: string;

@@ -2,7 +2,6 @@
 
 import Header from "@/components/Header";
 import { useBookmarks } from "@/components/BookmarksProvider";
-import NewsCard from "@/components/NewsCard";
 import { Bookmark, Folder, Trash2, Tag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

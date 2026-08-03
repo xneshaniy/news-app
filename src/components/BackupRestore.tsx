@@ -17,7 +17,6 @@ interface BackupData {
 
 export default function BackupRestore() {
   const [status, setStatus] = useState<"idle" | "success" | "error" | "importing">("idle");
-  const [lastBackup, setLastBackup] = useState<string | null>(null);
   const [dataSize, setDataSize] = useState("0 B");
   const [counts, setCounts] = useState({ favorites: 0, bookmarks: 0, history: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,14 +40,10 @@ export default function BackupRestore() {
 
   const exportData = () => {
     const data: Record<string, string> = {};
-    let totalSize = 0;
 
     for (const key of STORAGE_KEYS) {
       const value = localStorage.getItem(key);
-      if (value) {
-        data[key] = value;
-        totalSize += value.length;
-      }
+      if (value) data[key] = value;
     }
 
     const backup: BackupData = {
@@ -67,7 +62,6 @@ export default function BackupRestore() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    setLastBackup(new Date().toISOString());
     localStorage.setItem("last-backup", new Date().toISOString());
     setStatus("success");
     setTimeout(() => setStatus("idle"), 3000);
@@ -89,6 +83,11 @@ export default function BackupRestore() {
           localStorage.setItem(key, value);
           imported++;
         }
+      }
+      if (imported === 0) {
+        setStatus("error");
+        setTimeout(() => setStatus("idle"), 3000);
+        return;
       }
 
       setStatus("success");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from "react";
 import { Article } from "@/types/news";
 
 interface ReadArticle {
@@ -36,16 +36,16 @@ export function ReadingHistoryProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("reading-history", JSON.stringify(history.slice(0, 200)));
   }, [history]);
 
-  const addToHistory = (article: Article) => {
+  const addToHistory = useCallback((article: Article) => {
     setHistory((prev) => {
       const filtered = prev.filter((h) => h.article.id !== article.id);
       return [{ article, readAt: new Date().toISOString(), readDuration: 0 }, ...filtered].slice(0, 200);
     });
-  };
+  }, []);
 
-  const clearHistory = () => setHistory([]);
+  const clearHistory = useCallback(() => setHistory([]), []);
 
-  const isRead = (id: string) => history.some((h) => h.article.id === id);
+  const isRead = useCallback((id: string) => history.some((h) => h.article.id === id), [history]);
 
   return (
     <ReadingHistoryContext.Provider value={{ history, addToHistory, clearHistory, isRead }}>

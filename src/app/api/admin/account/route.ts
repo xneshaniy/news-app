@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
 import { getAdminEmail, verifyAdminCredentials, updateAdminConfig } from "@/lib/admin-store";
 import { validateEmail } from "@/lib/validation";
-import { sendPasswordChangeConfirmation, sendEmailChangeVerification, isFeatureEnabled } from "@/lib/email-service";
+import { sendPasswordChangeConfirmation, isFeatureEnabled } from "@/lib/email-service";
 
 export async function GET(request: NextRequest) {
   const session = request.cookies.get("admin-session");

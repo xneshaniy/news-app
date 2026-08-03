@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "@/components/Header";
 import BreakingNewsBanner from "@/components/BreakingNewsBanner";
 import { Globe, Zap, Shield, Users, LineChart, Sparkles } from "lucide-react";
@@ -129,12 +130,12 @@ export default function AboutPage() {
             Start exploring world news personalized for you. Free to use, no
             registration required.
           </p>
-          <a
+          <Link
             href="/"
             className="inline-flex px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
           >
             Explore News
-          </a>
+          </Link>
         </div>
       </main>
     </div>

@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Star, Plus, Trash2, GripVertical, ExternalLink,
-  Clock, Edit3, Check, X, Save, Flame,
-} from "lucide-react";
+import { Star, Plus, Trash2, GripVertical, ExternalLink, Clock, Check, Flame } from "lucide-react";
 
 interface FeaturedStory {
   id: string;
@@ -27,7 +24,6 @@ const CATEGORIES = [
 export default function FeaturedStoriesAdmin() {
   const [stories, setStories] = useState<FeaturedStory[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [newStory, setNewStory] = useState<{
     title: string;
     description: string;

@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  MessageSquare, Check, X, Trash2, Search, Filter,
-  Flag, Clock, User, MoreVertical, Eye, AlertTriangle,
-  CheckCircle, XCircle, MessageCircle, Shield,
-} from "lucide-react";
+import { Check, X, Trash2, Search, Flag, Clock, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
 interface Comment {
   id: string;
@@ -108,7 +104,6 @@ export default function CommentModeration() {
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {filtered.map((comment) => {
             const config = STATUS_CONFIG[comment.status];
-            const StatusIcon = config.icon;
             return (
               <div key={comment.id} className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors ${comment.reported && comment.status === "pending" ? "border-l-4 border-red-400" : ""}`}>
                 <div className="flex items-start gap-3">

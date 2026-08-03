@@ -126,6 +126,7 @@ export async function GET(request: NextRequest, context: CallbackContext) {
     const code = searchParams.get("code");
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
+    const state = searchParams.get("state");
 
     if (error) {
       return redirect(`/admin/social?error=${encodeURIComponent(errorDescription || `Authorization failed for ${platformNameForKey(platform)}`)}`);
@@ -133,6 +134,11 @@ export async function GET(request: NextRequest, context: CallbackContext) {
 
     if (!code) {
       return redirect(`/admin/social?error=${encodeURIComponent("Missing authorization code from provider")}`);
+    }
+
+    const storedState = request.cookies.get("oauth_state")?.value;
+    if (!state || !storedState || state !== storedState) {
+      return redirect(`/admin/social?error=${encodeURIComponent("OAuth state validation failed. Please try connecting again.")}`);
     }
 
     const exchanged = await exchangeCode(platform, code);

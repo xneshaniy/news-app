@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  CreditCard, Users, DollarSign, TrendingUp, CheckCircle,
-  XCircle, Star, Zap, Crown, Shield, Eye, Edit3,
-  BarChart3, Calendar, ArrowUpRight, ArrowDownRight,
-  Package, Gift, RefreshCw, Settings, Mail,
-} from "lucide-react";
+import { CreditCard, Users, DollarSign, TrendingUp, CheckCircle, XCircle, Star, Zap, Crown, Shield, Eye, Edit3, ArrowUpRight, ArrowDownRight, Package } from "lucide-react";
 
 interface SubscriptionPlan {
   id: string;

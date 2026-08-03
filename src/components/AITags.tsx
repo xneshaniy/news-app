@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Tag, X } from "lucide-react";
+import { Tag } from "lucide-react";
 
 interface AITagsProps {
   title: string;
@@ -81,7 +81,7 @@ export default function AITags({ title, description, content, onTagsGenerated }:
       setTags(generated);
       onTagsGenerated?.(generated);
     }
-  }, [title, description, content]);
+  }, [title, description, content, onTagsGenerated]);
 
   if (tags.length === 0) return null;
 

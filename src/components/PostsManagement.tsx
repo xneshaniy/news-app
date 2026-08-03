@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileText, Plus, Edit3, Trash2, Eye, Clock, Send,
-  Search, Calendar, Tag, User, Filter, CheckCircle,
-  AlertCircle, Archive, Globe, ArrowUpRight, Copy, X,
-  Save,
-} from "lucide-react";
+import { FileText, Plus, Edit3, Trash2, Eye, Clock, Search, Calendar, Tag, User, CheckCircle, Archive, X, Save } from "lucide-react";
 
 interface Post {
   id: string;

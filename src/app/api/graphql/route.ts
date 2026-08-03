@@ -18,29 +18,6 @@ interface GQLResponse {
   errors?: GQLError[];
 }
 
-const typeDefs = `
-  type Query {
-    articles(country: String, category: String, limit: Int, offset: Int): ArticleConnection!
-    article(id: ID!): Article
-    categories: [Category!]!
-    countries: [Country!]!
-    searchArticles(query: String!, limit: Int): [Article!]!
-    trendingArticles(limit: Int): [Article!]!
-    health: HealthStatus!
-  }
-  type Mutation {
-    toggleFavorite(articleId: ID!): Boolean!
-    toggleBookmark(articleId: ID!, folder: String): Boolean!
-    trackView(articleId: ID!): Boolean!
-  }
-  type ArticleConnection { articles: [Article!]! total: Int! hasMore: Boolean! }
-  type Article { id: ID! title: String! description: String url: String! source: String! author: String publishedAt: String! category: String! country: String! }
-  type Category { slug: ID! name: String! icon: String! articleCount: Int }
-  type Country { code: ID! name: String! flag: String! }
-  type HealthStatus { status: String! uptime: Float! version: String! apis: [APIStatus!]! }
-  type APIStatus { name: String! status: String! latency: Int }
-`;
-
 function genId(): string {
   return `a-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -76,7 +53,7 @@ const queryResolvers: Record<string, (args: Record<string, unknown>) => unknown>
     const offset = (args.offset as number) || 0;
     return { articles: Array.from({ length: limit }, () => genArticle(country, category)), total: 100, hasMore: offset + limit < 100 };
   },
-  article: (args) => genArticle("us", "technology"),
+  article: () => genArticle("us", "technology"),
   categories: () => [
     { slug: "breaking", name: "Breaking News", icon: "zap", articleCount: 89 },
     { slug: "politics", name: "Politics", icon: "landmark", articleCount: 289 },

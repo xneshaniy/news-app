@@ -31,8 +31,6 @@ export default function ReadingMode({ title, content, description }: ReadingMode
     dark: "bg-gray-900 text-gray-100",
   };
 
-  const fullText = `${title}\n\n${description || ""}\n\n${content}`;
-
   if (!isOpen) {
     return (
       <button

@@ -6,7 +6,7 @@ import NewsCard from "@/components/NewsCard";
 import { useCountry } from "@/components/CountryProvider";
 import { Article } from "@/types/news";
 import { COUNTRIES } from "@/lib/constants";
-import { Globe, TrendingUp, Sparkles } from "lucide-react";
+import { Globe, Sparkles } from "lucide-react";
 
 export default function CountryRecommendationsPage() {
   const { country, setCountry } = useCountry();

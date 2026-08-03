@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Search, Globe, FileText, Image, Code, Save,
-  Check, Eye, Tag, BarChart3, Link, AlertTriangle,
-} from "lucide-react";
+import { Globe, Code, Save, Check, BarChart3, AlertTriangle } from "lucide-react";
 
 interface SEOSettings {
   siteTitle: string;

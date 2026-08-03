@@ -2,8 +2,8 @@
 
 import Header from "@/components/Header";
 import { useState } from "react";
-import { Podcast, Episode } from "@/types/news";
-import { Headphones, Play, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Podcast } from "@/types/news";
+import { Play, Clock, ChevronDown, ChevronUp } from "lucide-react";
 
 const PODCASTS: Podcast[] = [
   {

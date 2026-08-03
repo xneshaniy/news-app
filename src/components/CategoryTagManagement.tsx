@@ -1,10 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Tag, Plus, Edit3, Trash2, Check, X, GripVertical,
-  Hash, Folder, ChevronDown, ChevronRight, Search,
-} from "lucide-react";
+import { useState } from "react";
+import { Plus, Edit3, Trash2, X, Hash, ChevronDown, ChevronRight, Search } from "lucide-react";
 
 interface Category {
   id: string;

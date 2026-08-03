@@ -57,7 +57,13 @@ export default function PushNotifications() {
           "Sports championship results are in",
         ];
         const headline = headlines[Math.floor(Math.random() * headlines.length)];
-        showLocalNotification("Trending Now", headline);
+        new Notification("Trending Now", {
+          body: headline,
+          icon: "/icons/icon-192x192.svg",
+          badge: "/icons/icon-96x96.svg",
+        } as NotificationOptions);
+        setLastNotification("Trending Now");
+        setTimeout(() => setLastNotification(null), 5000);
       }
     }, 300000);
 

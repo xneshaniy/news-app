@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Clock, ImageIcon } from "lucide-react";
+import { Heart, Clock } from "lucide-react";
 import { Article } from "@/types/news";
 import { useFavorites } from "./FavoritesProvider";
 import { formatDate, truncateText } from "@/lib/constants";
