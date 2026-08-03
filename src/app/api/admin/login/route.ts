@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signAdminToken } from "@/lib/auth";
 import { verifyAdminCredentials } from "@/lib/admin-store";
+import { sendNewLoginNotification, isFeatureEnabled } from "@/lib/email-service";
+import { getAdminEmail } from "@/lib/email-config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +25,20 @@ export async function POST(request: NextRequest) {
       path: "/",
       maxAge: 86400,
     });
+
+    if (isFeatureEnabled("newLogin")) {
+      const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        request.headers.get("x-real-ip") || "unknown";
+      const ua = request.headers.get("user-agent") || "unknown browser";
+      try {
+        await sendNewLoginNotification(
+          getAdminEmail(),
+          `Time: ${new Date().toLocaleString()}\nIP address: ${ip}\nBrowser: ${ua.slice(0, 120)}`
+        );
+      } catch {
+        // notification failure is non-fatal to login
+      }
+    }
 
     return response;
   } catch {

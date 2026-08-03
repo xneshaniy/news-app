@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Mail, Send, Bell, Clock, CheckCircle, XCircle,
   Plus, Trash2, Edit3, Eye, BarChart3, Users,
   Settings, ToggleLeft, ToggleRight, RefreshCw,
-  FileText, AlertTriangle, Zap, Globe,
+  FileText, AlertTriangle, Zap, Globe, Server, Key, MessageSquare,
 } from "lucide-react";
 
 interface EmailCampaign {
@@ -38,6 +38,50 @@ interface NotificationRule {
   lastTriggered: string;
 }
 
+interface EmailLog {
+  id: string;
+  type: string;
+  to: string;
+  subject: string;
+  provider: string;
+  status: "sent" | "failed";
+  error?: string;
+  timestamp: string;
+}
+
+interface EmailConfigResponse {
+  adminEmail: string;
+  recoveryEmail: string;
+  fromName: string;
+  fromEmail: string;
+  provider: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpSecure: boolean;
+  smtpPass?: string;
+  resendConfigured: boolean;
+  features: Record<string, boolean>;
+}
+
+const EMAIL_FEATURES: { key: string; label: string; desc: string }[] = [
+  { key: "passwordReset", label: "Password Reset Emails", desc: "Send reset codes for forgotten passwords" },
+  { key: "accountRecovery", label: "Account Recovery Emails", desc: "Send recovery codes for locked accounts" },
+  { key: "loginOtp", label: "Login Verification (OTP)", desc: "Send one-time login verification codes" },
+  { key: "twoFactor", label: "Two-Factor Authentication", desc: "Send 2FA codes when enabled" },
+  { key: "securityAlert", label: "Security Alert Emails", desc: "Notify on suspicious activity" },
+  { key: "newLogin", label: "New Login Notifications", desc: "Alert when a new device signs in" },
+  { key: "passwordChange", label: "Password Change Confirmations", desc: "Confirm password changes by email" },
+  { key: "emailChangeVerify", label: "Email Change Verification", desc: "Verify email address changes" },
+  { key: "adminNotification", label: "Admin Notifications", desc: "Notify admins of system events" },
+  { key: "contactNotification", label: "Contact Form Notifications", desc: "Forward contact form submissions" },
+  { key: "registrationVerify", label: "Registration Verification", desc: "Verify new user registrations" },
+  { key: "welcome", label: "Welcome Emails", desc: "Send welcome emails to new subscribers" },
+  { key: "newsletter", label: "Newsletter Emails", desc: "Deliver newsletter campaigns" },
+  { key: "systemError", label: "System Error Notifications", desc: "Alert on system failures" },
+  { key: "backupMaintenance", label: "Backup & Maintenance", desc: "Notify about backup/maintenance tasks" },
+];
+
 const MOCK_CAMPAIGNS: EmailCampaign[] = [
   { id: "c1", name: "Weekly Digest", subject: "This Week in News - Top Stories", status: "sent", recipients: 12450, opened: 7890, clicked: 2340, sentAt: "2 hours ago" },
   { id: "c2", name: "Breaking: Climate Summit", subject: "BREAKING: Historic Climate Agreement Reached", status: "sent", recipients: 15670, opened: 12340, clicked: 5670, sentAt: "1 day ago" },
@@ -65,7 +109,7 @@ export default function EmailNotifications() {
   const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
   const [templates, setTemplates] = useState(MOCK_TEMPLATES);
   const [rules, setRules] = useState(MOCK_RULES);
-  const [activeTab, setActiveTab] = useState<"campaigns" | "templates" | "rules" | "analytics" | "settings">("campaigns");
+  const [activeTab, setActiveTab] = useState<"campaigns" | "templates" | "rules" | "analytics" | "settings" | "email-system">("campaigns");
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [newCampaign, setNewCampaign] = useState({ name: "", subject: "", recipients: "" });
@@ -78,6 +122,104 @@ export default function EmailNotifications() {
     unsubscribeConfirm: true,
     dailySendLimit: "10,000",
   });
+  const [emailConfig, setEmailConfig] = useState<EmailConfigResponse | null>(null);
+  const [configDraft, setConfigDraft] = useState<EmailConfigResponse | null>(null);
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [testRecipient, setTestRecipient] = useState("");
+  const [sendingType, setSendingType] = useState<string | null>(null);
+  const [configSaving, setConfigSaving] = useState(false);
+
+  const loadEmailConfig = async () => {
+    try {
+      const res = await fetch("/api/email?type=config", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setEmailConfig(data);
+        setConfigDraft(data);
+      }
+    } catch {
+      // ignore network errors
+    }
+  };
+
+  const loadEmailLogs = async () => {
+    try {
+      const res = await fetch("/api/email?type=logs", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setEmailLogs(data.logs || []);
+      }
+    } catch {
+      // ignore network errors
+    }
+  };
+
+  useEffect(() => {
+    loadEmailConfig();
+    loadEmailLogs();
+  }, []);
+
+  const saveEmailConfig = async () => {
+    if (!configDraft) return;
+    setConfigSaving(true);
+    try {
+      const res = await fetch("/api/email/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(configDraft),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotice("success", "Email configuration saved and persisted.");
+        loadEmailConfig();
+      } else {
+        showNotice("error", data.error || "Failed to save email configuration");
+      }
+    } catch {
+      showNotice("error", "Failed to save email configuration");
+    } finally {
+      setConfigSaving(false);
+    }
+  };
+
+  const toggleFeature = (key: string) => {
+    if (!configDraft) return;
+    setConfigDraft({ ...configDraft, features: { ...configDraft.features, [key]: !configDraft.features[key] } });
+  };
+
+  const sendTestEmail = async (type: string) => {
+    const to = testRecipient || emailConfig?.adminEmail || "";
+    if (!to) {
+      showNotice("error", "Set a test recipient email first");
+      return;
+    }
+    setSendingType(type);
+    try {
+      const res = await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: type === "test" ? "test" : type,
+          to,
+          ...(type === "security-alert" ? { details: "Test security alert triggered from admin panel." } : {}),
+          ...(type === "new-login" ? { details: "Test new login notification from admin panel." } : {}),
+          ...(type === "system-error" ? { component: "Test Component", error: "This is a test system error notification." } : {}),
+          ...(type === "backup" ? { message: "This is a test backup & maintenance notification." } : {}),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotice("success", `Test email (${type}) sent successfully.`);
+      } else {
+        showNotice("error", data.error || `Failed to send test email (${type})`);
+      }
+      loadEmailLogs();
+    } catch {
+      showNotice("error", `Failed to send test email (${type})`);
+    } finally {
+      setSendingType(null);
+    }
+  };
 
   const showNotice = (type: "success" | "error", message: string) => {
     setNotice({ type, message });
@@ -184,6 +326,7 @@ export default function EmailNotifications() {
           { key: "rules", label: "Rules", icon: Bell },
           { key: "analytics", label: "Analytics", icon: BarChart3 },
           { key: "settings", label: "Settings", icon: Settings },
+          { key: "email-system", label: "Email System", icon: Server },
         ].map((t) => (
           <button key={t.key} onClick={() => setActiveTab(t.key as typeof activeTab)} className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex-1 ${activeTab === t.key ? "bg-white dark:bg-gray-700 shadow-sm" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
             <t.icon className="w-3 h-3" /> {t.label}
@@ -321,6 +464,194 @@ export default function EmailNotifications() {
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
             <div><p className="font-medium text-sm">Daily Send Limit</p><p className="text-xs text-gray-400">Maximum emails per day</p></div>
             <select value={settings.dailySendLimit} onChange={(e) => setSettings({ ...settings, dailySendLimit: e.target.value })} className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"><option>10,000</option><option>25,000</option><option>50,000</option><option>Unlimited</option></select>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "email-system" && (
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold flex items-center gap-2"><Key className="w-4 h-4 text-blue-500" /> Email Delivery Configuration</h3>
+                <p className="text-xs text-gray-400 mt-0.5">SMTP / provider settings, admin & recovery email, persisted across restarts</p>
+              </div>
+              <button onClick={saveEmailConfig} disabled={configSaving} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">
+                {configSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Save Config
+              </button>
+            </div>
+
+            {!emailConfig && (
+              <div className="flex items-center gap-2 text-sm text-gray-500"><RefreshCw className="w-4 h-4 animate-spin" /> Loading email configuration...</div>
+            )}
+
+            {emailConfig && configDraft && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">Administrator Email</label>
+                    <input value={configDraft.adminEmail} onChange={(e) => setConfigDraft({ ...configDraft, adminEmail: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    <p className="text-[11px] text-gray-400 mt-1">Primary admin account and default notification recipient</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">Permanent Recovery Email</label>
+                    <input value={configDraft.recoveryEmail} onChange={(e) => setConfigDraft({ ...configDraft, recoveryEmail: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    <p className="text-[11px] text-gray-400 mt-1">Used for account recovery and password reset</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">From Name</label>
+                    <input value={configDraft.fromName} onChange={(e) => setConfigDraft({ ...configDraft, fromName: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">From Email</label>
+                    <input value={configDraft.fromEmail} onChange={(e) => setConfigDraft({ ...configDraft, fromEmail: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Provider</label>
+                  <select value={configDraft.provider} onChange={(e) => setConfigDraft({ ...configDraft, provider: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm">
+                    <option value="resend">Resend (API key)</option>
+                    <option value="smtp">SMTP Server</option>
+                  </select>
+                </div>
+
+                {configDraft.provider === "smtp" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-700/20 rounded-lg">
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5">SMTP Host</label>
+                      <input value={configDraft.smtpHost} onChange={(e) => setConfigDraft({ ...configDraft, smtpHost: e.target.value })} placeholder="smtp.gmail.com" className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5">SMTP Port</label>
+                      <input type="number" value={configDraft.smtpPort} onChange={(e) => setConfigDraft({ ...configDraft, smtpPort: parseInt(e.target.value) || 587 })} className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5">SMTP Username</label>
+                      <input value={configDraft.smtpUser} onChange={(e) => setConfigDraft({ ...configDraft, smtpUser: e.target.value })} placeholder="your@email.com" className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5">SMTP Password / App Password</label>
+                      <input type="password" onChange={(e) => setConfigDraft({ ...configDraft, smtpPass: e.target.value })} placeholder="••••••••" className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                      <span className="text-sm font-medium">Use Secure Connection (TLS/SSL)</span>
+                      <button onClick={() => setConfigDraft({ ...configDraft, smtpSecure: !configDraft.smtpSecure })} className={`relative w-11 h-6 rounded-full transition-colors ${configDraft.smtpSecure ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${configDraft.smtpSecure ? "translate-x-5" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/20 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Resend API Key</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {emailConfig.resendConfigured ? "Configured (key stored in environment)" : "Not configured"}
+                        </p>
+                      </div>
+                      <Server className="w-5 h-5 text-blue-500" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6">
+            <h3 className="font-semibold mb-1">Email Feature Toggles</h3>
+            <p className="text-xs text-gray-400 mb-4">Enable or disable each email feature type</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {EMAIL_FEATURES.map((f) => (
+                <div key={f.key} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/20 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">{f.label}</p>
+                    <p className="text-xs text-gray-400">{f.desc}</p>
+                  </div>
+                  <button onClick={() => toggleFeature(f.key)} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${configDraft?.features?.[f.key] ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}>
+                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${configDraft?.features?.[f.key] ? "translate-x-5" : ""}`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold flex items-center gap-2"><Send className="w-4 h-4 text-green-500" /> Test Email Delivery</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Send a test of each email type to verify delivery</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input value={testRecipient} onChange={(e) => setTestRecipient(e.target.value)} placeholder={emailConfig?.adminEmail || "recipient@example.com"} className="w-64 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[
+                { key: "test", label: "System Test" },
+                { key: "password-reset", label: "Password Reset" },
+                { key: "account-recovery", label: "Account Recovery" },
+                { key: "login-otp", label: "Login OTP" },
+                { key: "2fa", label: "2FA Code" },
+                { key: "security-alert", label: "Security Alert" },
+                { key: "new-login", label: "New Login" },
+                { key: "password-changed", label: "Password Changed" },
+                { key: "email-change", label: "Email Change Verify" },
+                { key: "admin-notification", label: "Admin Notification" },
+                { key: "contact", label: "Contact Form" },
+                { key: "registration-verify", label: "Registration Verify" },
+                { key: "welcome", label: "Welcome" },
+                { key: "newsletter", label: "Newsletter" },
+                { key: "system-error", label: "System Error" },
+                { key: "backup", label: "Backup & Maintenance" },
+              ].map((t) => (
+                <button key={t.key} onClick={() => sendTestEmail(t.key)} disabled={sendingType === t.key} className="flex items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm font-medium disabled:opacity-50">
+                  <span>{t.label}</span>
+                  {sendingType === t.key ? <RefreshCw className="w-4 h-4 animate-spin text-blue-500" /> : <Send className="w-4 h-4 text-gray-400" />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2"><MessageSquare className="w-4 h-4 text-purple-500" /> Delivery Log</h3>
+              <button onClick={loadEmailLogs} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+            </div>
+            {emailLogs.length === 0 ? (
+              <p className="text-sm text-gray-400">No delivery attempts logged yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700/50 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-4 py-2">Type</th>
+                      <th className="px-4 py-2">To</th>
+                      <th className="px-4 py-2">Subject</th>
+                      <th className="px-4 py-2">Provider</th>
+                      <th className="px-4 py-2">Status</th>
+                      <th className="px-4 py-2">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {emailLogs.slice(0, 25).map((log) => (
+                      <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                        <td className="px-4 py-2 text-xs font-medium">{log.type}</td>
+                        <td className="px-4 py-2 text-xs">{log.to}</td>
+                        <td className="px-4 py-2 text-xs truncate max-w-[240px]">{log.subject}</td>
+                        <td className="px-4 py-2 text-xs">{log.provider}</td>
+                        <td className="px-4 py-2">
+                          <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${log.status === "sent" ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}>
+                            {log.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 text-xs text-gray-400">{new Date(log.timestamp).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

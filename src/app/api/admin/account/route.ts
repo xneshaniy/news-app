@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
 import { getAdminEmail, verifyAdminCredentials, updateAdminConfig } from "@/lib/admin-store";
 import { validateEmail } from "@/lib/validation";
+import { sendPasswordChangeConfirmation, sendEmailChangeVerification, isFeatureEnabled } from "@/lib/email-service";
 
 export async function GET(request: NextRequest) {
   const session = request.cookies.get("admin-session");
@@ -51,6 +52,15 @@ export async function PUT(request: NextRequest) {
       email: typeof newEmail === "string" && newEmail !== "" ? newEmail : undefined,
       password: typeof newPassword === "string" && newPassword !== "" ? newPassword : undefined,
     });
+
+    const adminEmail = getAdminEmail();
+    if (newPassword && newPassword !== "" && isFeatureEnabled("passwordChange")) {
+      try {
+        await sendPasswordChangeConfirmation(adminEmail);
+      } catch {
+        // notification failure is non-fatal
+      }
+    }
 
     return NextResponse.json({ success: true, email: result.email });
   } catch {

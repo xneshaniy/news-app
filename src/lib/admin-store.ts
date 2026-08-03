@@ -1,6 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import fs from "fs";
 import path from "path";
+import { getEmailConfig, updateEmailConfig } from "@/lib/email-config";
 
 export interface AdminConfig {
   email: string;
@@ -10,6 +11,7 @@ export interface AdminConfig {
 }
 
 const ENV_SALT = "worldlive-admin-salt-v1";
+const DEFAULT_ADMIN_EMAIL = "xneshaniya@gmail.com";
 
 function hashPassword(password: string, salt: string): string {
   return scryptSync(password, salt, 64).toString("hex");
@@ -45,7 +47,7 @@ function loadConfig(): AdminConfig {
     // fall through to env
   }
   memoryConfig = {
-    email: process.env.ADMIN_EMAIL || "admin@worldlive.dpdns.org",
+    email: getEmailConfig().adminEmail || DEFAULT_ADMIN_EMAIL,
     salt: ENV_SALT,
     hash: hashPassword(process.env.ADMIN_PASSWORD || "worldlive2024", ENV_SALT),
   };
@@ -74,7 +76,15 @@ export function verifyAdminCredentials(password: string): boolean {
 
 export function updateAdminConfig(patch: { email?: string; password?: string }): { email: string; updatedAt: string } {
   const config = loadConfig();
-  if (patch.email !== undefined && patch.email.trim()) config.email = patch.email.trim().toLowerCase();
+  if (patch.email !== undefined && patch.email.trim()) {
+    const normalized = patch.email.trim().toLowerCase();
+    config.email = normalized;
+    try {
+      updateEmailConfig({ adminEmail: normalized, recoveryEmail: getEmailConfig().recoveryEmail || normalized });
+    } catch {
+      // email config store unavailable
+    }
+  }
   if (patch.password && patch.password.length >= 8) {
     config.salt = newSalt();
     config.hash = hashPassword(patch.password, config.salt);
