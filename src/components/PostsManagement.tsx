@@ -4,7 +4,8 @@ import { useState } from "react";
 import {
   FileText, Plus, Edit3, Trash2, Eye, Clock, Send,
   Search, Calendar, Tag, User, Filter, CheckCircle,
-  AlertCircle, Archive, Globe, ArrowUpRight, Copy,
+  AlertCircle, Archive, Globe, ArrowUpRight, Copy, X,
+  Save,
 } from "lucide-react";
 
 interface Post {
@@ -38,11 +39,41 @@ const STATUS_CONFIG = {
   archived: { color: "bg-orange-100 dark:bg-orange-900/30 text-orange-600", icon: Archive, label: "Archived" },
 };
 
+const CATEGORY_OPTIONS = ["Breaking", "Politics", "Business", "Technology", "Sports", "Entertainment", "Health", "Science"];
+const AUTHOR_OPTIONS = ["Maria Garcia", "James Wilson", "Sarah Chen", "Emily Brown", "David Kim"];
+
+interface EditorState {
+  id: string | null;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  category: string;
+  status: Post["status"];
+  featured: boolean;
+  tags: string;
+}
+
+const EMPTY_EDITOR: EditorState = {
+  id: null,
+  title: "",
+  excerpt: "",
+  content: "",
+  author: AUTHOR_OPTIONS[0],
+  category: CATEGORY_OPTIONS[0],
+  status: "draft",
+  featured: false,
+  tags: "",
+};
+
 export default function PostsManagement() {
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [editor, setEditor] = useState<EditorState | null>(null);
+  const [viewPost, setViewPost] = useState<Post | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const filtered = posts.filter((p) => {
     const matchesFilter = filter === "all" || p.status === filter;
@@ -67,6 +98,77 @@ export default function PostsManagement() {
     });
   };
 
+  const openNewPost = () => {
+    setEditor({ ...EMPTY_EDITOR });
+  };
+
+  const openEditPost = (post: Post) => {
+    setEditor({
+      id: post.id,
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.excerpt,
+      author: post.author,
+      category: post.category,
+      status: post.status,
+      featured: post.featured,
+      tags: post.tags.join(", "),
+    });
+  };
+
+  const savePost = () => {
+    if (!editor) return;
+    if (!editor.title.trim()) return;
+
+    const tags = editor.tags.split(",").map((t) => t.trim()).filter(Boolean);
+
+    if (editor.id) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === editor.id
+            ? {
+                ...p,
+                title: editor.title.trim(),
+                excerpt: editor.excerpt.trim(),
+                author: editor.author,
+                category: editor.category,
+                status: editor.status,
+                featured: editor.featured,
+                tags,
+              }
+            : p
+        )
+      );
+    } else {
+      const newPost: Post = {
+        id: `p-${Date.now()}`,
+        title: editor.title.trim(),
+        excerpt: editor.excerpt.trim() || editor.title.trim(),
+        status: editor.status,
+        author: editor.author,
+        category: editor.category,
+        tags,
+        publishedAt: editor.status === "published" ? "Just now" : undefined,
+        views: 0,
+        featured: editor.featured,
+      };
+      setPosts((prev) => [newPost, ...prev]);
+    }
+    setEditor(null);
+  };
+
+  const bulkDelete = () => {
+    setPosts((prev) => prev.filter((p) => !selectedPosts.has(p.id)));
+    setSelectedPosts(new Set());
+  };
+
+  const deletePost = (id: string) => {
+    setPosts((prev) => prev.filter((p) => p.id !== id));
+    setConfirmDelete(null);
+  };
+
+  const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none";
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -74,11 +176,151 @@ export default function PostsManagement() {
           <h1 className="text-2xl font-bold">Posts</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Manage articles, drafts, and scheduled content</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+        <button onClick={openNewPost} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           New Post
         </button>
       </div>
+
+      {editor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setEditor(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-bold">{editor.id ? "Edit Post" : "New Post"}</h2>
+              <button onClick={() => setEditor(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Title *</label>
+                <input type="text" value={editor.title} onChange={(e) => setEditor({ ...editor, title: e.target.value })} placeholder="Post title..." className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Excerpt</label>
+                <textarea value={editor.excerpt} onChange={(e) => setEditor({ ...editor, excerpt: e.target.value })} placeholder="Short summary..." rows={2} className={`${inputClass} resize-none`} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Content</label>
+                <textarea value={editor.content} onChange={(e) => setEditor({ ...editor, content: e.target.value })} placeholder="Write your post content here..." rows={8} className={`${inputClass} resize-none`} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Author</label>
+                  <select value={editor.author} onChange={(e) => setEditor({ ...editor, author: e.target.value })} className={inputClass}>
+                    {AUTHOR_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <select value={editor.category} onChange={(e) => setEditor({ ...editor, category: e.target.value })} className={inputClass}>
+                    {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Status</label>
+                  <select value={editor.status} onChange={(e) => setEditor({ ...editor, status: e.target.value as Post["status"] })} className={inputClass}>
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tags (comma separated)</label>
+                  <input type="text" value={editor.tags} onChange={(e) => setEditor({ ...editor, tags: e.target.value })} placeholder="AI, Research" className={inputClass} />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={editor.featured} onChange={(e) => setEditor({ ...editor, featured: e.target.checked })} className="w-4 h-4" />
+                <span className="font-medium">Mark as Featured</span>
+              </label>
+            </div>
+            <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <button onClick={() => setEditor(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Cancel
+              </button>
+              <button onClick={savePost} disabled={!editor.title.trim()} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <Save className="w-4 h-4" />
+                {editor.id ? "Save Changes" : "Create Post"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setViewPost(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-bold flex items-center gap-2"><Eye className="w-5 h-5" /> View Post</h2>
+              <button onClick={() => setViewPost(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full flex items-center gap-1 ${STATUS_CONFIG[viewPost.status].color}`}>
+                  <FileText className="w-3 h-3" />
+                  {STATUS_CONFIG[viewPost.status].label}
+                </span>
+                {viewPost.featured && <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600">Featured</span>}
+              </div>
+              <h1 className="text-2xl font-bold mb-2">{viewPost.title}</h1>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{viewPost.excerpt}</p>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mb-4">
+                <span className="flex items-center gap-1"><User className="w-3 h-3" />{viewPost.author}</span>
+                <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{viewPost.category}</span>
+                {viewPost.publishedAt && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{viewPost.publishedAt}</span>}
+                {viewPost.views > 0 && <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{viewPost.views.toLocaleString()} views</span>}
+              </div>
+              {viewPost.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {viewPost.tags.map((t) => (
+                    <span key={t} className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600">{t}</span>
+                  ))}
+                </div>
+              )}
+              <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="mb-4">This is a preview of the post content. The full article content would be displayed here when rendered on the public site.</p>
+                <p>Excerpt: {viewPost.excerpt}</p>
+              </div>
+            </div>
+            <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <button onClick={() => setViewPost(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Close
+              </button>
+              <button onClick={() => { openEditPost(viewPost); setViewPost(null); }} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                <Edit3 className="w-4 h-4" />
+                Edit Post
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmDelete(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <h3 className="font-bold">Delete Post</h3>
+                <p className="text-sm text-gray-500">This action cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete <strong>{posts.find((p) => p.id === confirmDelete)?.title}</strong>?
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => deletePost(confirmDelete)} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6 overflow-x-auto">
         {(["all", "published", "draft", "scheduled", "archived"] as const).map((f) => (
@@ -96,7 +338,7 @@ export default function PostsManagement() {
             <input placeholder="Search posts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm outline-none" />
           </div>
           {selectedPosts.size > 0 && (
-            <button className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg text-xs font-medium">
+            <button onClick={bulkDelete} className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg text-xs font-medium">
               <Trash2 className="w-3.5 h-3.5" />
               Delete ({selectedPosts.size})
             </button>
@@ -129,13 +371,13 @@ export default function PostsManagement() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
+                  <button onClick={() => openEditPost(post)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
                     <Edit3 className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 text-gray-400 hover:text-green-500 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors" title="View">
+                  <button onClick={() => setViewPost(post)} className="p-1.5 text-gray-400 hover:text-green-500 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors" title="View">
                     <Eye className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setPosts((prev) => prev.filter((p) => p.id !== post.id))} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
+                  <button onClick={() => setConfirmDelete(post.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
