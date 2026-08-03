@@ -57,6 +57,8 @@ export default function CategoryTagManagement() {
   const [tab, setTab] = useState<"categories" | "tags">("categories");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingCat, setEditingCat] = useState<Category | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", slug: "", description: "", color: "#3b82f6", parent: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(["3"]));
 
@@ -84,6 +86,44 @@ export default function CategoryTagManagement() {
 
   const deleteCategory = (id: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const openEdit = (cat: Category) => {
+    setEditingCat(cat);
+    setEditForm({
+      name: cat.name,
+      slug: cat.slug,
+      description: cat.description,
+      color: cat.color,
+      parent: cat.parent || "",
+    });
+    setEditingId(cat.id);
+  };
+
+  const closeEdit = () => {
+    setEditingId(null);
+    setEditingCat(null);
+  };
+
+  const saveCategory = () => {
+    if (!editingId || !editForm.name) return;
+    const updateTree = (cats: Category[]): Category[] =>
+      cats.map((c) => {
+        if (c.id === editingId) {
+          return {
+            ...c,
+            name: editForm.name,
+            slug: editForm.slug || generateSlug(editForm.name),
+            description: editForm.description,
+            color: editForm.color,
+            parent: editForm.parent || null,
+          };
+        }
+        if (c.children.length > 0) return { ...c, children: updateTree(c.children) };
+        return c;
+      });
+    setCategories(updateTree);
+    closeEdit();
   };
 
   const addTag = () => {
@@ -141,7 +181,7 @@ export default function CategoryTagManagement() {
           </span>
 
           <div className="flex items-center gap-1">
-            <button onClick={() => setEditingId(cat.id)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+            <button onClick={() => openEdit(cat)} className="p-1.5 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
               <Edit3 className="w-3.5 h-3.5" />
             </button>
             <button onClick={() => deleteCategory(cat.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
@@ -256,6 +296,85 @@ export default function CategoryTagManagement() {
           </div>
         )}
       </div>
+
+      {editingId && editingCat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={closeEdit}>
+          <div
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
+              <h3 className="font-semibold">Edit Category</h3>
+              <button onClick={closeEdit} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Name</label>
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Slug</label>
+                <input
+                  value={editForm.slug}
+                  onChange={(e) => setEditForm({ ...editForm, slug: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Description</label>
+                <input
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Color</label>
+                <div className="flex gap-1.5 flex-wrap">
+                  {COLORS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setEditForm({ ...editForm, color: c })}
+                      className={`w-7 h-7 rounded-full ${editForm.color === c ? "ring-2 ring-offset-2 ring-blue-500" : ""}`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Parent</label>
+                <select
+                  value={editForm.parent}
+                  onChange={(e) => setEditForm({ ...editForm, parent: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                >
+                  <option value="">No parent (top-level)</option>
+                  {categories.filter((c) => c.id !== editingId).map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700/50">
+              <button onClick={closeEdit} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                Cancel
+              </button>
+              <button
+                onClick={saveCategory}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
