@@ -34,6 +34,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 
 const RATE_LIMITS: Record<string, { max: number; window: number }> = {
   "/api/admin/login": { max: 5, window: 300000 },
+  "/api/admin/author-login": { max: 10, window: 300000 },
   "/api/": { max: 60, window: 60000 },
   "/api/ai": { max: 10, window: 60000 },
   "/api/email": { max: 5, window: 60000 },
@@ -140,14 +141,25 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/admin")) {
-    const session = request.cookies.get("admin-session");
+    const adminSession = request.cookies.get("admin-session");
+    const authorSession = request.cookies.get("author-session");
+    const session = adminSession?.value || authorSession?.value;
     if (pathname !== "/admin/login") {
-      if (!session || !session.value) {
+      if (!session) {
         const url = request.nextUrl.clone();
         url.pathname = "/admin/login";
         return NextResponse.redirect(url);
       }
-    } else if (session?.value) {
+      const ADMIN_ONLY_PAGES = [
+        "/admin/users", "/admin/authors", "/admin/rbac",
+        "/admin/security", "/admin/advertisements", "/admin/subscriptions",
+        "/admin/sources", "/admin/seo", "/admin/settings",
+        "/admin/integrations", "/admin/activity",
+      ];
+      if (!adminSession?.value && ADMIN_ONLY_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } else if (session) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
@@ -155,9 +167,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/login") {
-      const session = request.cookies.get("admin-session");
-      if (!session || !session.value) {
+    if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/login" && pathname !== "/api/admin/author-login") {
+      const adminSession = request.cookies.get("admin-session");
+      const authorSession = request.cookies.get("author-session");
+      const session = adminSession?.value || authorSession?.value;
+      if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
     }

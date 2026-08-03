@@ -1,56 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard, Star, Tag, Users, Image, FileText,
   MessageSquare, Megaphone, Mail, Search, Settings,
   ChevronLeft, ChevronRight, Shield, Zap, BarChart3,
-  Menu, X, Globe, Clock, Newspaper, Share2, Bell,
-  CreditCard, Lock, Database, LogOut,
+  Menu, X, Globe, Share2, Bell,
+  CreditCard, Database, LogOut,
 } from "lucide-react";
 
 const sidebarItems = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true, roles: ["admin", "editor", "author"] },
   { divider: "Content" },
-  { href: "/admin/posts", icon: FileText, label: "Posts & Drafts" },
-  { href: "/admin/featured", icon: Star, label: "Featured Stories" },
-  { href: "/admin/categories", icon: Tag, label: "Categories & Tags" },
-  { href: "/admin/authors", icon: Users, label: "Authors" },
-  { href: "/admin/media", icon: Image, label: "Media Library" },
+  { href: "/admin/posts", icon: FileText, label: "Posts & Drafts", roles: ["admin", "editor", "author"] },
+  { href: "/admin/featured", icon: Star, label: "Featured Stories", roles: ["admin", "editor"] },
+  { href: "/admin/categories", icon: Tag, label: "Categories & Tags", roles: ["admin", "editor"] },
+  { href: "/admin/authors", icon: Users, label: "Authors", roles: ["admin"] },
+  { href: "/admin/media", icon: Image, label: "Media Library", roles: ["admin", "editor", "author"] },
   { divider: "Users & Engagement" },
-  { href: "/admin/users", icon: Users, label: "User Management" },
-  { href: "/admin/comments", icon: MessageSquare, label: "Comments" },
+  { href: "/admin/users", icon: Users, label: "User Management", roles: ["admin"] },
+  { href: "/admin/comments", icon: MessageSquare, label: "Comments", roles: ["admin", "editor"] },
   { divider: "Monetization" },
-  { href: "/admin/advertisements", icon: Megaphone, label: "Advertisements" },
-  { href: "/admin/subscriptions", icon: CreditCard, label: "Subscriptions" },
+  { href: "/admin/advertisements", icon: Megaphone, label: "Advertisements", roles: ["admin"] },
+  { href: "/admin/subscriptions", icon: CreditCard, label: "Subscriptions", roles: ["admin"] },
   { divider: "Marketing" },
-  { href: "/admin/newsletters", icon: Mail, label: "Newsletters" },
-  { href: "/admin/social", icon: Share2, label: "Social Media" },
+  { href: "/admin/newsletters", icon: Mail, label: "Newsletters", roles: ["admin", "editor"] },
+  { href: "/admin/social", icon: Share2, label: "Social Media", roles: ["admin", "editor"] },
   { divider: "Data Sources" },
-  { href: "/admin/sources", icon: Database, label: "News Sources" },
+  { href: "/admin/sources", icon: Database, label: "News Sources", roles: ["admin"] },
   { divider: "Security & System" },
-  { href: "/admin/security", icon: Shield, label: "Security Center" },
-  { href: "/admin/notifications", icon: Bell, label: "Email & Push" },
+  { href: "/admin/security", icon: Shield, label: "Security Center", roles: ["admin"] },
+  { href: "/admin/notifications", icon: Bell, label: "Email & Push", roles: ["admin", "editor"] },
   { divider: "Configuration" },
-  { href: "/admin/seo", icon: Search, label: "SEO Settings" },
-  { href: "/admin/settings", icon: Settings, label: "Website Settings" },
-  { href: "/admin/integrations", icon: Globe, label: "API & Integrations" },
-  { href: "/admin/rbac", icon: Shield, label: "Roles & Permissions" },
-  { href: "/admin/ai-tools", icon: Zap, label: "AI Tools" },
-  { href: "/admin/activity", icon: BarChart3, label: "Activity Logs" },
+  { href: "/admin/seo", icon: Search, label: "SEO Settings", roles: ["admin"] },
+  { href: "/admin/settings", icon: Settings, label: "Website Settings", roles: ["admin"] },
+  { href: "/admin/integrations", icon: Globe, label: "API & Integrations", roles: ["admin"] },
+  { href: "/admin/rbac", icon: Shield, label: "Roles & Permissions", roles: ["admin"] },
+  { href: "/admin/ai-tools", icon: Zap, label: "AI Tools", roles: ["admin", "editor", "author"] },
+  { href: "/admin/activity", icon: BarChart3, label: "Activity Logs", roles: ["admin"] },
 ];
+
+interface SessionInfo {
+  role: "admin" | "editor" | "author";
+  type: "admin" | "author";
+  name: string;
+  email?: string;
+}
 
 export default function AdminSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [session, setSession] = useState<SessionInfo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setSession(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
+  };
+
+  const canView = (roles?: string[]) => {
+    if (!roles) return true;
+    if (!session) return true;
+    return roles.includes(session.role);
   };
 
   const handleLogout = async () => {
@@ -58,6 +81,8 @@ export default function AdminSidebar({ children }: { children: React.ReactNode }
     router.push("/admin/login");
     router.refresh();
   };
+
+  const visibleItems = sidebarItems.filter((item) => !("href" in item) || canView(item.roles));
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -82,7 +107,7 @@ export default function AdminSidebar({ children }: { children: React.ReactNode }
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
-        {sidebarItems.map((item, i) => {
+        {visibleItems.map((item, i) => {
           if ("divider" in item) {
             return collapsed ? (
               <div key={i} className="h-px bg-gray-200 dark:bg-gray-700/50 my-2" />
@@ -112,6 +137,19 @@ export default function AdminSidebar({ children }: { children: React.ReactNode }
       </nav>
 
       <div className="p-3 border-t border-gray-200 dark:border-gray-700/50 space-y-1">
+        {session && !collapsed && (
+          <div className="flex items-center gap-3 px-3 py-2 mb-1 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-xs font-bold text-white">
+                {session.name.slice(0, 1).toUpperCase()}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold truncate">{session.name}</p>
+              <p className="text-[10px] text-gray-400 capitalize">{session.role}</p>
+            </div>
+          </div>
+        )}
         <Link
           href="/"
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

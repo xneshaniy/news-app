@@ -52,10 +52,27 @@ export default function SocialMediaManagement() {
   const loadAccounts = useCallback(async () => {
     setLoading(true);
     try {
+      const cached = localStorage.getItem("social-accounts");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAccounts(parsed);
+          }
+        } catch {
+          // ignore corrupted cache
+        }
+      }
       const res = await fetch("/api/admin/social");
       if (!res.ok) throw new Error("Failed to load accounts");
       const data = await res.json();
-      setAccounts(data.accounts || []);
+      const serverAccounts = data.accounts || [];
+      setAccounts(serverAccounts);
+      try {
+        localStorage.setItem("social-accounts", JSON.stringify(serverAccounts));
+      } catch {
+        // ignore quota errors
+      }
     } catch {
       showNotice("error", "Could not load social accounts. Check that you are logged in as admin.");
     } finally {
@@ -81,6 +98,15 @@ export default function SocialMediaManagement() {
     }
   }, [searchParams, showNotice, loadAccounts]);
 
+  const persistAccounts = (next: SocialAccount[]) => {
+    setAccounts(next);
+    try {
+      localStorage.setItem("social-accounts", JSON.stringify(next));
+    } catch {
+      // ignore quota errors
+    }
+  };
+
   const connectAccount = async (platformKey: string) => {
     setConnecting(platformKey);
     try {
@@ -98,7 +124,7 @@ export default function SocialMediaManagement() {
         return;
       }
 
-      setAccounts((prev) => [data.account, ...prev]);
+      persistAccounts([data.account, ...accounts]);
       showNotice("success", data.message || `${data.account.platform} connected.`);
       setShowConnectModal(false);
     } catch (e) {
@@ -108,16 +134,16 @@ export default function SocialMediaManagement() {
     }
   };
 
-  const disconnectAccount = async (account: SocialAccount) => {
-    if (!confirm(`Disconnect ${account.platform} (${account.handle})? You can reconnect any time.`)) return;
+  const disconnectAccount = async (account: SocialAccount, silent = false) => {
+    if (!silent && !confirm(`Disconnect ${account.platform} (${account.handle})? You can reconnect any time.`)) return;
     try {
       const res = await fetch(`/api/admin/social?id=${account.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to disconnect");
-      setAccounts((prev) => prev.filter((a) => a.id !== account.id));
-      showNotice("success", data.message || `${account.platform} disconnected.`);
+      persistAccounts(accounts.filter((a) => a.id !== account.id));
+      if (!silent) showNotice("success", data.message || `${account.platform} disconnected.`);
     } catch (e) {
-      showNotice("error", e instanceof Error ? e.message : "Failed to disconnect account");
+      if (!silent) showNotice("error", e instanceof Error ? e.message : "Failed to disconnect account");
     }
   };
 
@@ -126,7 +152,7 @@ export default function SocialMediaManagement() {
     if (!platform) return;
     setConnecting(account.id);
     try {
-      await disconnectAccount(account);
+      await disconnectAccount(account, true);
       await new Promise((r) => setTimeout(r, 100));
       await connectAccount(platform.key);
     } catch {
