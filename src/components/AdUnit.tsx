@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 interface AdUnitProps {
   slot: string;
-  format?: "auto" | "horizontal" | "rectangle" | "vertical" | "fluid";
+  format?: "auto" | "horizontal" | "rectangle" | "vertical" | "fluid" | "autorelaxed";
   className?: string;
   layout?: string;
   style?: React.CSSProperties;
@@ -24,6 +24,7 @@ const FORMAT_SIZES: Record<NonNullable<AdUnitProps["format"]>, React.CSSProperti
   rectangle: { display: "block", width: "100%", minHeight: 250 },
   vertical: { display: "block", width: "100%", minHeight: 600 },
   fluid: { display: "block", width: "100%" },
+  autorelaxed: { display: "block", width: "100%", minHeight: 250 },
 };
 
 export default function AdUnit({ slot, format = "auto", className = "", layout, style }: AdUnitProps) {
@@ -59,8 +60,8 @@ export default function AdUnit({ slot, format = "auto", className = "", layout, 
         }}
         data-ad-client={CLIENT_ID}
         data-ad-slot={slot}
-        data-ad-format={format === "auto" ? "auto" : undefined}
-        data-full-width-responsive="true"
+        data-ad-format={format}
+        data-full-width-responsive={format === "autorelaxed" ? undefined : "true"}
         {...(layout ? { "data-ad-layout": layout } : {})}
       />
     </div>

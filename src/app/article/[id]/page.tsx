@@ -241,6 +241,10 @@ export default function ArticlePage({
               </p>
             </div>
           )}
+
+          <div className="mb-12">
+            <AdUnit slot="2064748486" format="autorelaxed" />
+          </div>
         </article>
 
         <div className="mb-12">
