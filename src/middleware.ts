@@ -214,6 +214,19 @@ export async function middleware(request: NextRequest) {
     response.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");
   }
 
+  const geoCountry =
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    "";
+  if (geoCountry && !request.cookies.get("wl_geo")) {
+    response.cookies.set("wl_geo", geoCountry, {
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: false,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
+
   return response;
 }
 

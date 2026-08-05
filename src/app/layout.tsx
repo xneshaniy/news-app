@@ -11,6 +11,8 @@ import { BookmarksProvider } from "@/components/BookmarksProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ReadingHistoryProvider } from "@/components/ReadingHistoryProvider";
 import Footer from "@/components/Footer";
+import { ConsentProvider } from "@/components/ConsentProvider";
+import ConsentBanner from "@/components/ConsentBanner";
 
 const PWAInstall = dynamic(() => import("@/components/PWAInstall"));
 const NewsletterPopup = dynamic(() => import("@/components/NewsletterPopup"));
@@ -129,6 +131,29 @@ export default function RootLayout({
             `,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              window.gtag = function(){ window.dataLayer.push(arguments); };
+              gtag('consent', 'default', {
+                ad_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted',
+                analytics_storage: 'granted',
+                wait_for_update: 500
+              });
+              gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                region: ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH'],
+                wait_for_update: 500
+              });
+            `
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
@@ -138,10 +163,13 @@ export default function RootLayout({
                 <LanguageProvider>
                   <BookmarksProvider>
                     <ReadingHistoryProvider>
-                      {children}
-                      <Footer />
-                      <PWAInstall />
-                      <NewsletterPopup />
+                      <ConsentProvider>
+                        {children}
+                        <Footer />
+                        <PWAInstall />
+                        <NewsletterPopup />
+                        <ConsentBanner />
+                      </ConsentProvider>
                     </ReadingHistoryProvider>
                   </BookmarksProvider>
                 </LanguageProvider>
