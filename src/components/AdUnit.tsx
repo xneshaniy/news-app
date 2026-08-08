@@ -35,18 +35,27 @@ export default function AdUnit({ slot, format = "auto", className = "", layout, 
     if (pushed.current) return;
     pushed.current = true;
 
-    try {
-      const pushAd = () => {
-        if (typeof window !== "undefined" && window.adsbygoogle) {
-          window.adsbygoogle.push({});
-        }
-      };
+    const pushAd = () => {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch {
+        // Silently fail
+      }
+    };
 
-      const t = setTimeout(pushAd, 100);
-      return () => clearTimeout(t);
-    } catch {
-      // Silently fail
-    }
+    const attempt = (attempts: number) => {
+      if (typeof window !== "undefined") {
+        if (window.adsbygoogle) {
+          pushAd();
+          return;
+        }
+        if (attempts < 50) {
+          setTimeout(() => attempt(attempts + 1), 200);
+        }
+      }
+    };
+
+    attempt(0);
   }, []);
 
   return (

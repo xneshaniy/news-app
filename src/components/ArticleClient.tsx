@@ -136,7 +136,7 @@ export default function ArticleClient({ article, relatedArticles }: ArticleClien
       </div>
 
       <div className="mb-12">
-        <AdUnit slot="2345678901" format="horizontal" />
+        <AdUnit slot="2064748486" format="horizontal" />
       </div>
 
       {relatedArticles.length > 0 && (

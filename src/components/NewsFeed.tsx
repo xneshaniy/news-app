@@ -8,7 +8,7 @@ import NewsCard from "./NewsCard";
 import InfiniteScroll from "./InfiniteScroll";
 import AdUnit from "./AdUnit";
 
-const IN_FEED_SLOT = "1234567890";
+const IN_FEED_SLOT = "1934941881";
 
 interface NewsFeedProps {
   category?: string;

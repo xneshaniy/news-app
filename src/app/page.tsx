@@ -53,14 +53,14 @@ export default function Home() {
             <TrendingNews />
 
             <div className="mb-8">
-              <AdUnit slot="4567890123" format="horizontal" />
+              <AdUnit slot="1934941881" format="horizontal" />
             </div>
 
             <NewsFeed pageSize={20} showActions />
           </div>
 
           <div className="space-y-6">
-            <AdUnit slot="3456789012" format="vertical" />
+            <AdUnit slot="1934941881" format="vertical" />
             <NewsletterSubscription variant="sidebar" />
             <WeatherWidget />
             <StockWidget />
