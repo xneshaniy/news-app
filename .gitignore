@@ -40,6 +40,10 @@ yarn-error.log*
 # runtime data store
 /data/*.json
 
+# prisma local database
+/prisma/*.db
+/prisma/*.db-journal
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

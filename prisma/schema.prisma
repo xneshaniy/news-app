@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_PATH")
+}
+
+model Article {
+  id                String   @id @default(cuid())
+  source            String
+  sourceArticleId   String?
+  canonicalUrl      String   @unique
+  title             String
+  description       String?
+  content           String?
+  image             String?
+  author            String?
+  publishedAt       DateTime
+  category          String?
+  country           String?
+  views             Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([source, sourceArticleId])
+  @@index([publishedAt])
+  @@index([source])
+  @@index([category])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("USER")
+  plan          String    @default("FREE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  conversions   Conversion[]
+  apiKeys       ApiKey[]
+  settings      UserSettings?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Conversion {
+  id          String   @id @default(cuid())
+  userId      String?
+  tool        String
+  status      String   @default("PENDING")
+  inputFiles  String   // JSON array of file info
+  outputFiles String?  // JSON array of file info
+  options     String?  // JSON conversion options
+  error       String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String
+  key       String   @unique
+  prefix    String
+  userId    String
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  theme           String   @default("SYSTEM")
+  language        String   @default("en")
+  emailNotifications Boolean @default(true)
+  autoDeleteFiles Boolean  @default(true)
+  defaultQuality  String   @default("HIGH")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
