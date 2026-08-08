@@ -68,6 +68,15 @@ async function getArticleData(id: string) {
     return null;
   }
 
+  try {
+    await prisma.article.update({
+      where: { id },
+      data: { views: { increment: 1 } },
+    });
+  } catch {
+    console.error(`Failed to increment views for article ${id}`);
+  }
+
   return {
     article: {
       id: article.id,

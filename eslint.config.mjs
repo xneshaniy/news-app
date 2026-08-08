@@ -38,6 +38,7 @@ const eslintConfig = defineConfig([
         "src/components/FeaturedStoriesAdmin.tsx",
         "src/components/MediaLibrary.tsx",
         "src/components/ArticleClient.tsx",
+        "src/components/PostsManagement.tsx",
         "src/app/article/**/*.tsx",
       ],
       rules: {

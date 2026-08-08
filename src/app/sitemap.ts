@@ -1,12 +1,10 @@
 import { MetadataRoute } from "next";
+import { PrismaClient } from "@prisma/client";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+const prisma = new PrismaClient();
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://worldlive.dpdns.org";
-
-  const categories = [
-    "breaking", "politics", "business", "technology",
-    "sports", "entertainment", "health", "science",
-  ];
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "always" as const, priority: 1.0 },
@@ -29,6 +27,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: "never" as const, priority: 0.3 },
   ];
 
+  const categories = [
+    "breaking", "politics", "business", "technology",
+    "sports", "entertainment", "health", "science",
+  ];
+
   const categoryPages = categories.map((cat) => ({
     url: `${baseUrl}/category/${cat}`,
     lastModified: new Date(),
@@ -36,5 +39,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
-  return [...staticPages, ...categoryPages];
+  const articles = await prisma.article.findMany({
+    take: 1000,
+    orderBy: { publishedAt: "desc" },
+    select: { id: true, updatedAt: true },
+  });
+
+  const articlePages = articles.map((article) => ({
+    url: `${baseUrl}/article/${article.id}`,
+    lastModified: article.updatedAt,
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...categoryPages, ...articlePages];
 }

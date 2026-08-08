@@ -269,6 +269,26 @@ export default function RSSPage() {
           </div>
         )}
       </main>
+
+      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl max-w-7xl mx-auto px-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+            <Rss className="w-6 h-6 text-blue-600" />
+          </div>
+          <h3 className="font-semibold">WorldLive RSS Feed</h3>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+          Subscribe to our latest articles via RSS
+        </p>
+        <a
+          href="/api/rss/feed"
+          target="_blank"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          <Rss className="w-4 h-4" />
+          View WorldLive RSS Feed
+        </a>
+      </div>
     </div>
   );
 }
