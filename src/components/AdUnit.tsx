@@ -7,6 +7,7 @@ interface AdUnitProps {
   format?: "auto" | "horizontal" | "rectangle" | "vertical" | "fluid" | "autorelaxed";
   className?: string;
   layout?: string;
+  layoutKey?: string;
   style?: React.CSSProperties;
 }
 
@@ -27,7 +28,7 @@ const FORMAT_SIZES: Record<NonNullable<AdUnitProps["format"]>, React.CSSProperti
   autorelaxed: { display: "block", width: "100%", minHeight: 250 },
 };
 
-export default function AdUnit({ slot, format = "auto", className = "", layout, style }: AdUnitProps) {
+export default function AdUnit({ slot, format = "auto", className = "", layout, layoutKey, style }: AdUnitProps) {
   const adRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
 
@@ -70,8 +71,9 @@ export default function AdUnit({ slot, format = "auto", className = "", layout, 
         data-ad-client={CLIENT_ID}
         data-ad-slot={slot}
         data-ad-format={format}
-        data-full-width-responsive={format === "autorelaxed" ? undefined : "true"}
+        data-full-width-responsive={format === "autorelaxed" || format === "fluid" ? undefined : "true"}
         {...(layout ? { "data-ad-layout": layout } : {})}
+        {...(layoutKey ? { "data-ad-layout-key": layoutKey } : {})}
       />
     </div>
   );

@@ -8,7 +8,7 @@ import NewsCard from "./NewsCard";
 import InfiniteScroll from "./InfiniteScroll";
 import AdUnit from "./AdUnit";
 
-const IN_FEED_SLOT = "1934941881";
+const IN_FEED_SLOT = "8308778547";
 
 interface NewsFeedProps {
   category?: string;
@@ -140,7 +140,7 @@ export default function NewsFeed({
               <NewsCard article={article} showActions={showActions} />
               {index > 0 && index % 4 === 0 && (
                 <div className="mt-4">
-                  <AdUnit slot={IN_FEED_SLOT} format="auto" />
+                  <AdUnit slot={IN_FEED_SLOT} format="fluid" />
                 </div>
               )}
             </div>

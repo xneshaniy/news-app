@@ -132,11 +132,11 @@ export default function ArticleClient({ article, relatedArticles }: ArticleClien
       </article>
 
       <div className="mb-12">
-        <AdUnit slot="2064748486" format="autorelaxed" />
+        <AdUnit slot="5948153172" format="fluid" layout="in-article" />
       </div>
 
       <div className="mb-12">
-        <AdUnit slot="2064748486" format="horizontal" />
+        <AdUnit slot="2064748486" format="autorelaxed" />
       </div>
 
       {relatedArticles.length > 0 && (
@@ -149,6 +149,10 @@ export default function ArticleClient({ article, relatedArticles }: ArticleClien
           </div>
         </section>
       )}
+
+      <div className="mt-12">
+        <AdUnit slot="2125266469" format="fluid" layout="in-article" />
+      </div>
     </>
   );
 }
